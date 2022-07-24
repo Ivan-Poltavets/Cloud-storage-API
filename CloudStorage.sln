@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudStorage.API", "CloudStorage.API\CloudStorage.API.csproj", "{96FCA193-723E-41F9-AE5E-BDF2B81795A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorage.Core", "CloudStorage.Core\CloudStorage.Core.csproj", "{EA8C5564-1B4C-4327-B294-15E8760D385A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorage.Infrastructure", "CloudStorage.Infrastructure\CloudStorage.Infrastructure.csproj", "{E929443C-BE78-41C8-82B4-45E7C3054959}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96FCA193-723E-41F9-AE5E-BDF2B81795A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96FCA193-723E-41F9-AE5E-BDF2B81795A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96FCA193-723E-41F9-AE5E-BDF2B81795A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96FCA193-723E-41F9-AE5E-BDF2B81795A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA8C5564-1B4C-4327-B294-15E8760D385A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA8C5564-1B4C-4327-B294-15E8760D385A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA8C5564-1B4C-4327-B294-15E8760D385A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA8C5564-1B4C-4327-B294-15E8760D385A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E929443C-BE78-41C8-82B4-45E7C3054959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E929443C-BE78-41C8-82B4-45E7C3054959}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E929443C-BE78-41C8-82B4-45E7C3054959}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E929443C-BE78-41C8-82B4-45E7C3054959}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B02E48E2-B079-46FF-BF73-1858E2ACEED9}
+	EndGlobalSection
+EndGlobal
