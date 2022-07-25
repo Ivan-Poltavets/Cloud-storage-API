@@ -13,32 +13,46 @@ namespace CloudStorage.Infrastructure.Services
             _dbContext = dbContext;
         }
 
-        public FilesDto GetAllInCurrent(Guid userId, string currentDirectory)
+        public List<FileDto> GetAllInCurrent(Guid userId, string currentDirectory)
         {
-            return new FilesDto
-            {
-                FileInfos = GetFileInfosInCurrent(userId, currentDirectory),
-                Folders = GetFoldersInCurrent(userId, currentDirectory)
-            };
+            var list = new List<FileDto>();
+            list.AddRange(GetFileInfosInCurrent(userId, currentDirectory));
+            list.AddRange(GetFoldersInCurrent(userId, currentDirectory));
+            return list;
         }
 
-
-        private List<Core.Entities.FileInfo> GetFileInfosInCurrent(Guid userId, string currentDirectory)
+        private List<FileDto> GetFileInfosInCurrent(Guid userId, string currentDirectory)
         {
             var infos = _dbContext.FileInfos
                 .Where(x => x.UserId == userId && x.PathToFile == currentDirectory)
                 .ToList();
+            var dtos = new List<FileDto>();
+            
+            infos.ForEach(x => dtos.Add(new FileDto
+            {
+                Name = x.Name,
+                Type = nameof(File)
+            }));
 
-            return infos;
+            return dtos;
 
         }
 
-        private List<Folder> GetFoldersInCurrent(Guid userId, string currentDirectory)
+        private List<FileDto> GetFoldersInCurrent(Guid userId, string currentDirectory)
         {
             var folders = _dbContext.Folders
                 .Where(x => x.UserId == userId && x.Path == currentDirectory)
                 .ToList();
-            return folders;
+
+            var dtos = new List<FileDto>();
+
+            folders.ForEach(x => dtos.Add(new FileDto
+            {
+                Name = x.Name,
+                Type = nameof(Folder)
+            }));
+
+            return dtos;
         }
 
         

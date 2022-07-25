@@ -42,9 +42,9 @@ namespace CloudStorage.Infrastructure.Services
         }
 
         /// <summary>
-        /// Get all files in container
+        /// Get all files info in container
         /// </summary>
-        /// <returns>BlobItems</returns>
+        /// <returns>Info about items in blobs</returns>
         public Pageable<BlobItem> GetFiles()
         {
             return _containerClient.GetBlobs();

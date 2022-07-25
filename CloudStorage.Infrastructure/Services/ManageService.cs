@@ -10,11 +10,14 @@ namespace CloudStorage.Infrastructure.Services
     public class ManageService : IManageService
     {
         private readonly IStorageService _storageService;
+        private readonly IAccountService _accountService;
         private readonly AuthDbContext _dbContext;
         public ManageService(IStorageService storageService,
+            IAccountService accountService,
             AuthDbContext dbContext)
         {
             _storageService = storageService;
+            _accountService = accountService;
             _dbContext = dbContext;
         }
 
@@ -22,6 +25,7 @@ namespace CloudStorage.Infrastructure.Services
         {
             var fileInfos = new List<FileInfo>();
             var names = _storageService.UploadFiles(files);
+            long size = 0;
 
             for(int i = 0; i < files.Count; i++)
             {
@@ -34,7 +38,10 @@ namespace CloudStorage.Infrastructure.Services
                     Size = files[i].Length,
                     PathToFile = currentDirectory
                 });
+                size += files[i].Length;
             }
+
+            _accountService.AddFileToStorage(userId, size);
 
             await _dbContext.FileInfos.AddRangeAsync(fileInfos);
             await _dbContext.SaveChangesAsync();
@@ -57,15 +64,23 @@ namespace CloudStorage.Infrastructure.Services
             _dbContext.SaveChanges();
         }
 
-        public async void RemoveFiles(List<Guid> ids)
+        public async void RemoveFiles(List<string> names, Guid userId)
         {
             var fileInfos = _dbContext.FileInfos
-                .Where(x => ids.IndexOf(x.Id) > 0)
+                .Where(x => names.Contains(x.Name) && x.UserId == userId)
                 .ToList();
 
-            var names = new List<string>();
-            fileInfos.ForEach(x => names.Add(x.BlobName));
+            names.Clear();
+            long size = 0;
+
+            fileInfos.ForEach(x =>
+            {
+                names.Add(x.BlobName);
+                size += x.Size;
+            });
+
             _storageService.RemoveFiles(names);
+            _accountService.RemoveFileFromStorage(userId, size);
 
             _dbContext.FileInfos.RemoveRange(fileInfos);
             await _dbContext.SaveChangesAsync();

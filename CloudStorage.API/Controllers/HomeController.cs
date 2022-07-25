@@ -11,6 +11,7 @@ namespace CloudStorage.API.Controllers
     {
         private readonly IManageService _manageService;
         private readonly IDirectoryService _directoryService;
+
         public HomeController(IManageService manageService, IDirectoryService directoryService)
         {
             _manageService = manageService;
@@ -20,7 +21,7 @@ namespace CloudStorage.API.Controllers
 
         [Authorize]
         [HttpGet("{currentDirectory}")]
-        public ActionResult<FilesDto> GetFiles(string currentDirectory)
+        public ActionResult<List<FileDto>> GetFiles(string currentDirectory)
         {
             return _directoryService.GetAllInCurrent(Guid.NewGuid(), currentDirectory);
         }
