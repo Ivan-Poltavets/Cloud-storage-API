@@ -11,14 +11,18 @@ namespace CloudStorage.Infrastructure.Services
     {
         private readonly IStorageService _storageService;
         private readonly IAccountService _accountService;
-        private readonly AuthDbContext _dbContext;
+        private readonly IRepository<Folder> _folderRepository;
+        private readonly IRepository<FileInfo> _fileInfoRepository;
+
         public ManageService(IStorageService storageService,
             IAccountService accountService,
-            AuthDbContext dbContext)
+            IRepository<FileInfo> repository,
+            IRepository<Folder> folderRepository)
         {
+            _fileInfoRepository = repository;
             _storageService = storageService;
             _accountService = accountService;
-            _dbContext = dbContext;
+            _folderRepository = folderRepository;
         }
 
         public async void AddFiles(List<IFormFile> files, Guid userId, string currentDirectory)
@@ -42,16 +46,11 @@ namespace CloudStorage.Infrastructure.Services
             }
 
             _accountService.AddFileToStorage(userId, size);
-
-            await _dbContext.FileInfos.AddRangeAsync(fileInfos);
-            await _dbContext.SaveChangesAsync();
+            await _fileInfoRepository.AddRangeAsync(fileInfos);
         }
 
-        public void AddFolder(FolderDto folderDto)
+        public async void AddFolder(FolderDto folderDto)
         {
-            //map from FolderDto to Folder class
-
-            //temp
             var folder = new Folder
             {
                 Id = Guid.NewGuid(),
@@ -60,15 +59,13 @@ namespace CloudStorage.Infrastructure.Services
                 UserId = folderDto.UserId
             };
 
-            _dbContext.Folders.Add(folder);
-            _dbContext.SaveChanges();
+            await _folderRepository.AddAsync(folder);
         }
 
-        public async void RemoveFiles(List<string> names, Guid userId)
+        public void RemoveFiles(List<string> names, Guid userId)
         {
-            var fileInfos = _dbContext.FileInfos
-                .Where(x => names.Contains(x.Name) && x.UserId == userId)
-                .ToList();
+            var fileInfos = _fileInfoRepository
+                .Where(x => names.Contains(x.Name) && x.UserId == userId);
 
             names.Clear();
             long size = 0;
@@ -82,18 +79,16 @@ namespace CloudStorage.Infrastructure.Services
             _storageService.RemoveFiles(names);
             _accountService.RemoveFileFromStorage(userId, size);
 
-            _dbContext.FileInfos.RemoveRange(fileInfos);
-            await _dbContext.SaveChangesAsync();
+            _fileInfoRepository.RemoveRange(fileInfos);
         }
 
         public void RemoveFolder(FolderDto folderDto)
         {
-            var folder = _dbContext.Folders
+            var folder = _folderRepository
                 .SingleOrDefault(x => 
                 x.UserId == folderDto.UserId&& x.Name == folderDto.Name)!;
 
-            _dbContext.Folders.Remove(folder);
-            _dbContext.SaveChanges();
+            _folderRepository.Remove(folder);
         }
     }
 }

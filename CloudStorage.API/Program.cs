@@ -1,26 +1,13 @@
-using CloudStorage.Core.Interfaces;
 using CloudStorage.Infrastructure.Data;
-using CloudStorage.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
+using CloudStorage.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var services = builder.Services;
 
-services.AddAzureClients(config =>
-{
-    config.AddBlobServiceClient(configuration["Microsoft:BlobStorage:ConnectionString"]);
-});
-
-services.AddControllers();
-
-services.AddDbContext<AuthDbContext>(options =>
-{
-    options.UseSqlServer(configuration.GetConnectionString("AuthContext"));
-});
+services.AddInfrastructure(configuration);
 
 services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AuthDbContext>()
@@ -37,11 +24,10 @@ services.AddAuthentication(options =>
         options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
     });
 
+services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
-services.AddTransient<IStorageService, StorageService>();
-services.AddTransient<IManageService, ManageService>();
-services.AddTransient<DirectoryService>();
+
 
 var app = builder.Build();
 

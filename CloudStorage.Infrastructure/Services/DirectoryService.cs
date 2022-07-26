@@ -1,16 +1,19 @@
 ﻿using CloudStorage.Core.Dtos;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
-using CloudStorage.Infrastructure.Data;
 
 namespace CloudStorage.Infrastructure.Services
 {
     public class DirectoryService : IDirectoryService
     {
-        private readonly AuthDbContext _dbContext;
-        public DirectoryService(AuthDbContext dbContext)
+        private readonly IRepository<Core.Entities.FileInfo> _fileInfoRepository;
+        private readonly IRepository<Folder> _folderRepository;
+
+        public DirectoryService(IRepository<Core.Entities.FileInfo> fileInfoRepository,
+            IRepository<Folder> folderRepository)
         {
-            _dbContext = dbContext;
+            _fileInfoRepository = fileInfoRepository;
+            _folderRepository = folderRepository;
         }
 
         public List<FileDto> GetAllInCurrent(Guid userId, string currentDirectory)
@@ -23,9 +26,8 @@ namespace CloudStorage.Infrastructure.Services
 
         private List<FileDto> GetFileInfosInCurrent(Guid userId, string currentDirectory)
         {
-            var infos = _dbContext.FileInfos
-                .Where(x => x.UserId == userId && x.PathToFile == currentDirectory)
-                .ToList();
+            var infos = _fileInfoRepository
+                .Where(x => x.UserId == userId && x.PathToFile == currentDirectory);
             var dtos = new List<FileDto>();
             
             infos.ForEach(x => dtos.Add(new FileDto
@@ -40,9 +42,8 @@ namespace CloudStorage.Infrastructure.Services
 
         private List<FileDto> GetFoldersInCurrent(Guid userId, string currentDirectory)
         {
-            var folders = _dbContext.Folders
-                .Where(x => x.UserId == userId && x.Path == currentDirectory)
-                .ToList();
+            var folders = _folderRepository
+                .Where(x => x.UserId == userId && x.Path == currentDirectory);
 
             var dtos = new List<FileDto>();
 

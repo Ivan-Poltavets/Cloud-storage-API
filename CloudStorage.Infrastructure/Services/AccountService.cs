@@ -6,47 +6,44 @@ namespace CloudStorage.Infrastructure.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly AuthDbContext _dbContext;
-        public AccountService(AuthDbContext dbContext)
+        private readonly IRepository<AccountStorage> _repository;
+
+        public AccountService(IRepository<AccountStorage> repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
 
-        public void AddFileToStorage(Guid userId, long size)
+        public async void AddFileToStorage(Guid userId, long size)
         {
-            var accountInfo = _dbContext.AccountStorages.Find(userId);
-            accountInfo = CheckForNull(userId, accountInfo);
+            var accountInfo = _repository.GetById(userId);
+            accountInfo = await CheckForExist(userId, accountInfo);
             accountInfo.AddFile(size);
 
-            _dbContext.Update(accountInfo);
-            _dbContext.SaveChanges();
+            _repository.Update(accountInfo);
         }
 
         public void RemoveFileFromStorage(Guid userId, long size)
         {
-            var accountInfo = _dbContext.AccountStorages.Find(userId)!;
+            var accountInfo = _repository.GetById(userId);
             accountInfo.RemoveFile(size);
 
-            _dbContext.Update(accountInfo);
-            _dbContext.SaveChanges();
+            _repository.Update(accountInfo);
         }
 
-        private AccountStorage CheckForNull(Guid userId, AccountStorage? account)
+        private async Task<AccountStorage> CheckForExist(Guid userId, AccountStorage? account)
         {
             if(account == null)
             {
-                return CreateAccountInfo(userId);
+                return await CreateAccountInfo(userId);
             }
 
             return account;
         }
 
-        private AccountStorage CreateAccountInfo(Guid userId)
+        private async Task<AccountStorage> CreateAccountInfo(Guid userId)
         {
             var accountInfo = new AccountStorage(userId);
-
-            _dbContext.AccountStorages.Add(accountInfo);
-            _dbContext.SaveChanges();
+            await _repository.AddAsync(accountInfo);
 
             return accountInfo;
         }

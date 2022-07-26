@@ -36,9 +36,9 @@ namespace CloudStorage.API.Controllers
 
         [Authorize]
         [HttpDelete]
-        public IActionResult RemoveFiles(List<Guid> ids)
+        public IActionResult RemoveFiles(List<string> names, string currentDirectory)
         {
-            _manageService.RemoveFiles(ids);
+            _manageService.RemoveFiles(names, Guid.NewGuid());
             return NoContent();
         }
 

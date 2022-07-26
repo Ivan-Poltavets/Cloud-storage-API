@@ -23,6 +23,11 @@ namespace CloudStorage.Infrastructure.Services
                 (_configuration["Microsoft:BlobStorage:ContainerName"]);
         }
 
+        /// <summary>
+        /// Upload files into Azure Storage Container
+        /// </summary>
+        /// <param name="files">Files to upload to storage</param>
+        /// <returns>Generated names for blobs in Azure Storage</returns>
         public List<string> UploadFiles(List<IFormFile> files)
         {
             var names = new List<string>();
