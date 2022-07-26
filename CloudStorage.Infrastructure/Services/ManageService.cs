@@ -1,7 +1,6 @@
 ﻿using CloudStorage.Core.Dtos;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
-using CloudStorage.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using FileInfo = CloudStorage.Core.Entities.FileInfo;
 
@@ -49,14 +48,14 @@ namespace CloudStorage.Infrastructure.Services
             await _fileInfoRepository.AddRangeAsync(fileInfos);
         }
 
-        public async void AddFolder(FolderDto folderDto)
+        public async void AddFolder(FolderDto folderDto, Guid userId)
         {
             var folder = new Folder
             {
                 Id = Guid.NewGuid(),
                 Name = folderDto.Name,
                 Path = folderDto.Path,
-                UserId = folderDto.UserId
+                UserId = userId
             };
 
             await _folderRepository.AddAsync(folder);
@@ -82,11 +81,11 @@ namespace CloudStorage.Infrastructure.Services
             _fileInfoRepository.RemoveRange(fileInfos);
         }
 
-        public void RemoveFolder(FolderDto folderDto)
+        public void RemoveFolder(FolderDto folderDto, Guid userId)
         {
             var folder = _folderRepository
                 .SingleOrDefault(x => 
-                x.UserId == folderDto.UserId&& x.Name == folderDto.Name)!;
+                x.UserId == userId && x.Name == folderDto.Name)!;
 
             _folderRepository.Remove(folder);
         }
