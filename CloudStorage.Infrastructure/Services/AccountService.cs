@@ -1,6 +1,5 @@
 ﻿using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
-using CloudStorage.Infrastructure.Data;
 
 namespace CloudStorage.Infrastructure.Services
 {
@@ -13,24 +12,26 @@ namespace CloudStorage.Infrastructure.Services
             _repository = repository;
         }
 
-        public async void AddFileToStorage(Guid userId, long size)
+        public async Task AddFileToStorage(string userId, long size)
         {
-            var accountInfo = _repository.GetById(userId);
+            var accountInfo = await _repository.GetByIdAsync(userId);
             accountInfo = await CheckForExist(userId, accountInfo);
             accountInfo.AddFile(size);
 
-            _repository.Update(accountInfo);
+            await _repository.UpdateAsync(accountInfo);
+            await _repository.SaveChangesAsync();
         }
 
-        public void RemoveFileFromStorage(Guid userId, long size)
+        public async Task RemoveFileFromStorage(string userId, long size)
         {
-            var accountInfo = _repository.GetById(userId);
+            var accountInfo = await _repository.GetByIdAsync(userId);
             accountInfo.RemoveFile(size);
 
-            _repository.Update(accountInfo);
+            await _repository.UpdateAsync(accountInfo);
+            await _repository.SaveChangesAsync();
         }
 
-        private async Task<AccountStorage> CheckForExist(Guid userId, AccountStorage? account)
+        private async Task<AccountStorage> CheckForExist(string userId, AccountStorage? account)
         {
             if(account == null)
             {
@@ -40,10 +41,12 @@ namespace CloudStorage.Infrastructure.Services
             return account;
         }
 
-        private async Task<AccountStorage> CreateAccountInfo(Guid userId)
+        private async Task<AccountStorage> CreateAccountInfo(string userId)
         {
             var accountInfo = new AccountStorage(userId);
+
             await _repository.AddAsync(accountInfo);
+            await _repository.SaveChangesAsync();
 
             return accountInfo;
         }

@@ -23,7 +23,7 @@ services.AddAuthentication(options =>
         options.ClientId = configuration["Authentication:Google:ClientId"];
         options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
     });
-
+services.AddCors();
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
@@ -37,8 +37,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+using(var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<CosmosDbContext>();
+        context.Database.EnsureCreated();
+    }
+    catch(Exception ex)
+    {
 
+    }
+}
+
+app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -2,11 +2,16 @@
 {
     public class AccountStorage
     {
-        public Guid UserId { get; }
+        public string UserId { get; }
         public long SizeInUse { get; set; } = 0;
         public long SizeLimit { get; set; } = 1024 * 1024 * 50;
 
-        public AccountStorage(Guid userId)
+        public AccountStorage()
+        {
+
+        }
+
+        public AccountStorage(string userId)
         {
             UserId = userId;
         }
@@ -25,7 +30,7 @@
 
         public void RemoveFile(long fileSize)
         {
-            var size = SizeLimit - fileSize;
+            var size = SizeInUse - fileSize;
             if(size < 0)
             {
                 throw new Exception();

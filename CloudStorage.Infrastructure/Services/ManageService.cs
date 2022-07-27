@@ -24,7 +24,7 @@ namespace CloudStorage.Infrastructure.Services
             _folderRepository = folderRepository;
         }
 
-        public async void AddFiles(List<IFormFile> files, Guid userId, string currentDirectory)
+        public async Task AddFiles(List<IFormFile> files, string userId, string currentDirectory)
         {
             var fileInfos = new List<FileInfo>();
             var names = _storageService.UploadFiles(files);
@@ -44,11 +44,13 @@ namespace CloudStorage.Infrastructure.Services
                 size += files[i].Length;
             }
 
-            _accountService.AddFileToStorage(userId, size);
+            await _accountService.AddFileToStorage(userId, size);
+
             await _fileInfoRepository.AddRangeAsync(fileInfos);
+            await _fileInfoRepository.SaveChangesAsync();
         }
 
-        public async void AddFolder(FolderDto folderDto, Guid userId)
+        public async Task AddFolder(FolderDto folderDto, string userId)
         {
             var folder = new Folder
             {
@@ -59,12 +61,13 @@ namespace CloudStorage.Infrastructure.Services
             };
 
             await _folderRepository.AddAsync(folder);
+            await _folderRepository.SaveChangesAsync();
         }
 
-        public void RemoveFiles(List<string> names, Guid userId)
+        public async Task RemoveFiles(List<string> names, string userId, string currentDirectory)
         {
             var fileInfos = _fileInfoRepository
-                .Where(x => names.Contains(x.Name) && x.UserId == userId);
+                .Where(x => names.Contains(x.Name) && x.UserId == userId && x.PathToFile == currentDirectory);
 
             names.Clear();
             long size = 0;
@@ -76,18 +79,20 @@ namespace CloudStorage.Infrastructure.Services
             });
 
             _storageService.RemoveFiles(names);
-            _accountService.RemoveFileFromStorage(userId, size);
+            await _accountService.RemoveFileFromStorage(userId, size);
 
-            _fileInfoRepository.RemoveRange(fileInfos);
+            await _fileInfoRepository.RemoveRangeAsync(fileInfos);
+            await _fileInfoRepository.SaveChangesAsync();
         }
 
-        public void RemoveFolder(FolderDto folderDto, Guid userId)
+        public async Task RemoveFolder(FolderDto folderDto, string userId)
         {
-            var folder = _folderRepository
-                .SingleOrDefault(x => 
+            var folder = await _folderRepository
+                .SingleOrDefaultAsync(x => 
                 x.UserId == userId && x.Name == folderDto.Name)!;
 
-            _folderRepository.Remove(folder);
+            await _folderRepository.RemoveAsync(folder);
+            await _folderRepository.SaveChangesAsync();
         }
     }
 }

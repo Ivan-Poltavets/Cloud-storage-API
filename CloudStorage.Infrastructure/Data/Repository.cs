@@ -7,62 +7,63 @@ namespace CloudStorage.Infrastructure.Data
     public class Repository<TEntity> : IRepository<TEntity>
         where TEntity : class
     {
-        private readonly AuthDbContext _dbContext;
+        private readonly CosmosDbContext _dbContext;
         private readonly DbSet<TEntity> _dbSet; 
 
-        public Repository(AuthDbContext dbContext)
+        public Repository(CosmosDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<TEntity>();
         }
 
-        public async Task AddAsync(TEntity entity)
+        public async Task<TEntity> AddAsync(TEntity entity)
         {
             entity = CheckForNull(entity);
-            await _dbSet.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
+            return (await _dbSet.AddAsync(entity)).Entity;
         }
 
         public async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
             CheckForNull(entities);
             await _dbSet.AddRangeAsync(entities);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<TEntity>> GetAllAsync()
             => await Task.Run(() => _dbSet.AsNoTracking().ToList());
 
-        public TEntity GetById(params object[] keys)
-            => _dbSet.Find(keys);
+        public async Task<TEntity> GetByIdAsync(params object[] keys)
+            => await _dbSet.FindAsync(keys);
 
         public List<TEntity> Where(Expression<Func<TEntity, bool>> expression)
             => _dbSet.Where(expression).ToList();
 
-        public void Remove(TEntity entity)
-        {
-            _dbSet.Remove(entity);
-            _dbContext.SaveChanges();
-        }
+        public async Task RemoveAsync(TEntity entity)
+            => await Task.Run(() => _dbSet.Remove(entity));
 
-        public void RemoveRange(IEnumerable<TEntity> entities)
-        {
-            _dbSet.RemoveRange(entities);
-            _dbContext.SaveChanges();
-        }
+        public async Task RemoveRangeAsync(IEnumerable<TEntity> entities)
+            => await Task.Run(() => _dbSet.RemoveRange(entities));
 
-        public TEntity Update(TEntity entity)
-        {
-            _dbSet.Update(entity);
-            _dbContext.SaveChanges();
-            return entity;
-        }
+        public async Task UpdateAsync(TEntity entity)
+            => await Task.Run(() => _dbSet.Update(entity));
 
-        public List<TEntity> UpdateRange(IEnumerable<TEntity> entities)
+        public async Task UpdateRangeAsync(IEnumerable<TEntity> entities)
+            => await Task.Run(() => _dbSet.UpdateRange(entities));
+
+        public async Task<int> SaveChangesAsync()
         {
-            _dbSet.UpdateRange(entities);
-            _dbContext.SaveChanges();
-            return entities.ToList();
+            try
+            {
+                return await _dbContext.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                if(_dbContext.Database.CurrentTransaction != null)
+                {
+                    _dbContext.Database.CurrentTransaction.Rollback();
+                }
+
+                throw;
+            }
         }
 
         private static TEntity CheckForNull(TEntity? entity)
@@ -83,9 +84,8 @@ namespace CloudStorage.Infrastructure.Data
             return entities;
         }
 
-        public TEntity SingleOrDefault(Expression<Func<TEntity, bool>> expression)
-        {
-            return _dbSet.SingleOrDefault(expression);
-        }
+        public async Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
+            => await _dbSet.SingleOrDefaultAsync(expression);
+
     }
 }

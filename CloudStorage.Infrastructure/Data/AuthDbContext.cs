@@ -14,15 +14,5 @@ namespace CloudStorage.Infrastructure.Data
             Database.EnsureCreated();
         }
 
-        public DbSet<Core.Entities.FileInfo> FileInfos { get; set; }
-        public DbSet<Folder> Folders { get; set; }
-        public DbSet<AccountStorage> AccountStorages { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-
-            builder.ApplyConfiguration(new AccountStorageConfiguration());
-        }
     }
 }

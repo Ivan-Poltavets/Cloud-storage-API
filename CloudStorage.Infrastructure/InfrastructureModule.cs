@@ -23,6 +23,11 @@ namespace CloudStorage.Infrastructure
                 options.UseSqlServer(configuration.GetConnectionString("AuthContext"));
             });
 
+            services.AddDbContext<CosmosDbContext>(options =>
+            {
+                options.UseCosmos(configuration["Microsoft:CosmosDB:ConnectionString"], configuration["Microsoft:CosmosDB:DatabaseName"]);
+            });
+
             services.AddScoped<IRepository<Folder>, Repository<Folder>>();
             services.AddScoped<IRepository<Core.Entities.FileInfo>, Repository<Core.Entities.FileInfo>>();
             services.AddScoped<IRepository<AccountStorage>, Repository<AccountStorage>>();

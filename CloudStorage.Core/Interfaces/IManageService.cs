@@ -5,12 +5,12 @@ namespace CloudStorage.Core.Interfaces
 {
     public interface IManageService
     {
-        void AddFiles(List<IFormFile> files, Guid userId, string currentDirectory);
+        Task AddFiles(List<IFormFile> files, string userId, string currentDirectory);
 
-        void RemoveFiles(List<string> names, Guid userId);
+        Task RemoveFiles(List<string> names, string userId, string currentDirectory);
 
-        void AddFolder(FolderDto folderDto, Guid userId);
+        Task AddFolder(FolderDto folderDto, string userId);
 
-        void RemoveFolder(FolderDto folderDto, Guid userId);
+        Task RemoveFolder(FolderDto folderDto, string userId);
     }
 }

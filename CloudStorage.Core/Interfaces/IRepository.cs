@@ -5,24 +5,26 @@ namespace CloudStorage.Core.Interfaces
     public interface IRepository<TEntity>
         where TEntity : class
     {
-        Task AddAsync(TEntity entity);
+        Task<TEntity> AddAsync(TEntity entity);
 
         Task AddRangeAsync(IEnumerable<TEntity> entities);
 
-        TEntity Update(TEntity entity);
+        Task UpdateAsync(TEntity entity);
 
-        List<TEntity> UpdateRange(IEnumerable<TEntity> entities);
+        Task UpdateRangeAsync(IEnumerable<TEntity> entities);
 
-        void Remove(TEntity entity);
+        Task RemoveAsync(TEntity entity);
 
-        void RemoveRange(IEnumerable<TEntity> entities);
+        Task RemoveRangeAsync(IEnumerable<TEntity> entities);
 
-        TEntity GetById(params object[] keys);
+        Task<TEntity> GetByIdAsync(params object[] keys);
 
         Task<List<TEntity>> GetAllAsync();
 
         List<TEntity> Where(Expression<Func<TEntity, bool>> expression);
 
-        TEntity SingleOrDefault(Expression<Func<TEntity, bool>> expression);
+        Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> expression);
+
+        Task<int> SaveChangesAsync();
     }
 }

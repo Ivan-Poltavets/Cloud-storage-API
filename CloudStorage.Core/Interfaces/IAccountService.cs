@@ -2,8 +2,8 @@
 {
     public interface IAccountService
     {
-        void AddFileToStorage(Guid userId, long size);
+        Task AddFileToStorage(string userId, long size);
 
-        void RemoveFileFromStorage(Guid userId, long size);
+        Task RemoveFileFromStorage(string userId, long size);
     }
 }
