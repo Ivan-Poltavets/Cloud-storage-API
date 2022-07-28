@@ -23,6 +23,7 @@ services.AddAuthentication(options =>
         options.ClientId = configuration["Authentication:Google:ClientId"];
         options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
     });
+
 services.AddCors();
 services.AddControllers();
 services.AddEndpointsApiExplorer();

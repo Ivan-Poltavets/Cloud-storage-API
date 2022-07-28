@@ -1,4 +1,5 @@
-﻿using CloudStorage.Core.Dtos;
+﻿using CloudStorage.Core.Constants;
+using CloudStorage.Core.Dtos;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
 
@@ -16,20 +17,38 @@ namespace CloudStorage.Infrastructure.Services
             _folderRepository = folderRepository;
         }
 
-        public List<FileDto> GetAllInCurrent(string userId, string currentDirectory)
+        public async Task<List<FileDto>> GetAllInCurrent(string userId, Guid? id)
         {
-            var list = new List<FileDto>();
+            string path = Constants.MainDirectory;
+            
+            if (id != null)
+            {
+                var folder = await _folderRepository.GetByIdAsync(id);
+                path = Path.Combine(folder.Path, folder.Name);
+            }
 
-            list.AddRange(GetFileInfosInCurrent(userId, currentDirectory));
-            list.AddRange(GetFoldersInCurrent(userId, currentDirectory));
+            var items = GetAll(userId);
+            items = items
+                .Where(x => x.Path == path)
+                .ToList();
 
-            return list;
+            return items;
         }
 
-        private List<FileDto> GetFileInfosInCurrent(string userId, string currentDirectory)
+        public List<FileDto> GetAll(string userId)
+        {
+            var items = new List<FileDto>();
+
+            items.AddRange(GetFileInfos(userId));
+            items.AddRange(GetFolders(userId));
+
+            return items;
+        }
+
+        private List<FileDto> GetFileInfos(string userId)
         {
             var infos = _fileInfoRepository
-                .Where(x => x.UserId == userId && x.PathToFile == currentDirectory);
+                .Where(x => x.UserId == userId);
 
             var dtos = new List<FileDto>();
 
@@ -40,7 +59,9 @@ namespace CloudStorage.Infrastructure.Services
 
             infos.ForEach(x => dtos.Add(new FileDto
             {
+                Id = x.Id,
                 Name = x.Name,
+                Path = x.PathToFile,
                 Type = nameof(File)
             }));
 
@@ -48,10 +69,10 @@ namespace CloudStorage.Infrastructure.Services
 
         }
 
-        private List<FileDto> GetFoldersInCurrent(string userId, string currentDirectory)
+        private List<FileDto> GetFolders(string userId)
         {
             var folders = _folderRepository
-                .Where(x => x.UserId == userId && x.Path == currentDirectory);
+                .Where(x => x.UserId == userId);
 
             var dtos = new List<FileDto>();
 
@@ -62,13 +83,13 @@ namespace CloudStorage.Infrastructure.Services
 
             folders.ForEach(x => dtos.Add(new FileDto
             {
+                Id = x.Id,
                 Name = x.Name,
+                Path = x.Path,
                 Type = nameof(Folder)
             }));
 
             return dtos;
         }
-
-        
     }
 }
