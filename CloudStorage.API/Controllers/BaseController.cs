@@ -11,5 +11,6 @@ namespace CloudStorage.API.Controllers
     {
         internal string UserId => User.Identity!.IsAuthenticated
             ? User.FindFirst(ClaimTypes.NameIdentifier)!.Value : string.Empty;
+
     }
 }

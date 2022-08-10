@@ -28,11 +28,11 @@ namespace CloudStorage.Infrastructure
                 options.UseCosmos(configuration["Microsoft:CosmosDB:ConnectionString"], configuration["Microsoft:CosmosDB:DatabaseName"]);
             });
 
-            services.AddScoped<IRepository<Folder>, Repository<Folder>>();
+            services.AddScoped<IRepository<FolderInfo>, Repository<FolderInfo>>();
             services.AddScoped<IRepository<Core.Entities.FileInfo>, Repository<Core.Entities.FileInfo>>();
             services.AddScoped<IRepository<AccountStorage>, Repository<AccountStorage>>();
 
-            services.AddTransient<IStorageService, StorageService>();
+            services.AddTransient<IBlobStorageService, BlobStorageService>();
             services.AddTransient<IManageService, ManageService>();
             services.AddTransient<IDirectoryService, DirectoryService>();
             services.AddTransient<IAccountService, AccountService>();

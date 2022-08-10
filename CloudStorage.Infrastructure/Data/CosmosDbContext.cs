@@ -7,7 +7,7 @@ namespace CloudStorage.Infrastructure.Data
     public class CosmosDbContext : DbContext
     {
         public DbSet<Core.Entities.FileInfo> FileInfos { get; set; }
-        public DbSet<Folder> Folders { get; set; }
+        public DbSet<FolderInfo> Folders { get; set; }
         public DbSet<AccountStorage> AccountStorages { get; set; }
 
         public CosmosDbContext(DbContextOptions<CosmosDbContext> options)

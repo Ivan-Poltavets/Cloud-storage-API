@@ -9,15 +9,15 @@ namespace CloudStorage.Infrastructure.Services
 {
     public class ManageService : IManageService
     {
-        private readonly IStorageService _storageService;
+        private readonly IBlobStorageService _storageService;
         private readonly IAccountService _accountService;
-        private readonly IRepository<Folder> _folderRepository;
+        private readonly IRepository<FolderInfo> _folderRepository;
         private readonly IRepository<FileInfo> _fileInfoRepository;
 
-        public ManageService(IStorageService storageService,
+        public ManageService(IBlobStorageService storageService,
             IAccountService accountService,
             IRepository<FileInfo> fileInfosRepository,
-            IRepository<Folder> folderRepository)
+            IRepository<FolderInfo> folderRepository)
         {
             _fileInfoRepository = fileInfosRepository;
             _storageService = storageService;
@@ -28,10 +28,13 @@ namespace CloudStorage.Infrastructure.Services
         public async Task AddFiles(List<IFormFile> files, string userId, Guid? currentFolderId)
         {
             long size = 0;
-            string currentDirectory = await FolderHelper.GeneratePath(currentFolderId, _folderRepository);
             var fileInfos = new List<FileInfo>();
+            string path = await FolderHelper.GeneratePath(currentFolderId, _folderRepository);
+
+            files.ForEach(x => size += x.Length);
+            await _accountService.AddFileToStorage(userId, size);
+
             var names = _storageService.UploadFiles(files);
-            
             for(int i = 0; i < files.Count; i++)
             {
                 fileInfos.Add(new FileInfo
@@ -41,12 +44,9 @@ namespace CloudStorage.Infrastructure.Services
                     Name = files[i].FileName,
                     BlobName = names[i],
                     Size = files[i].Length,
-                    PathToFile = currentDirectory
+                    PathToFile = path
                 });
-                size += files[i].Length;
             }
-
-            await _accountService.AddFileToStorage(userId, size);
 
             await _fileInfoRepository.AddRangeAsync(fileInfos);
             await _fileInfoRepository.SaveChangesAsync();
@@ -55,7 +55,7 @@ namespace CloudStorage.Infrastructure.Services
         public async Task AddFolder(FolderDto folderDto, string userId, Guid? currentFolderId)
         {
             string path = await FolderHelper.GeneratePath(currentFolderId, _folderRepository);
-            var folder = new Folder
+            var folder = new FolderInfo
             {
                 Id = Guid.NewGuid(),
                 Name = folderDto.Name,
@@ -69,12 +69,11 @@ namespace CloudStorage.Infrastructure.Services
 
         public async Task RemoveFiles(List<string> names, string userId, Guid? currentFolderId)
         {
+            long size = 0;
             string path = await FolderHelper.GeneratePath(currentFolderId, _folderRepository);
             var fileInfos = _fileInfoRepository
                 .Where(x => names.Contains(x.Name) && x.UserId == userId && x.PathToFile == path);
-
             names.Clear();
-            long size = 0;
 
             fileInfos.ForEach(x =>
             {
@@ -84,7 +83,6 @@ namespace CloudStorage.Infrastructure.Services
 
             _storageService.RemoveFiles(names);
             await _accountService.RemoveFileFromStorage(userId, size);
-
             await _fileInfoRepository.RemoveRangeAsync(fileInfos);
             await _fileInfoRepository.SaveChangesAsync();
         }
@@ -93,9 +91,10 @@ namespace CloudStorage.Infrastructure.Services
         {
             var folder = await _folderRepository
                 .GetByIdAsync(id);
+            var foldersInside = _folderRepository
+                .Where(x => x.Path.StartsWith(folder.Path));
 
-            var foldersInside = _folderRepository.Where(x => x.Path.StartsWith(folder.Path));
-            if(foldersInside != null)
+            if(foldersInside is not null)
             {
                 await _folderRepository.RemoveRangeAsync(foldersInside);
             }
@@ -103,7 +102,5 @@ namespace CloudStorage.Infrastructure.Services
             await _folderRepository.RemoveAsync(folder);
             await _folderRepository.SaveChangesAsync();
         }
-
-        
     }
 }

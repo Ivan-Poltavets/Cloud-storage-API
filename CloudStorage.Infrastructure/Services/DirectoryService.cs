@@ -1,31 +1,25 @@
-﻿using CloudStorage.Core.Constants;
-using CloudStorage.Core.Dtos;
+﻿using CloudStorage.Core.Dtos;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
+using CloudStorage.Infrastructure.Helpers;
 
 namespace CloudStorage.Infrastructure.Services
 {
     public class DirectoryService : IDirectoryService
     {
         private readonly IRepository<Core.Entities.FileInfo> _fileInfoRepository;
-        private readonly IRepository<Folder> _folderRepository;
+        private readonly IRepository<FolderInfo> _folderRepository;
 
         public DirectoryService(IRepository<Core.Entities.FileInfo> fileInfoRepository,
-            IRepository<Folder> folderRepository)
+            IRepository<FolderInfo> folderRepository)
         {
             _fileInfoRepository = fileInfoRepository;
             _folderRepository = folderRepository;
         }
 
-        public async Task<List<FileDto>> GetAllInCurrent(string userId, Guid? id)
+        public async Task<List<ItemDto>> GetAllInCurrent(string userId, Guid? id)
         {
-            string path = Constants.MainDirectory;
-            
-            if (id != null)
-            {
-                var folder = await _folderRepository.GetByIdAsync(id);
-                path = Path.Combine(folder.Path, folder.Name);
-            }
+            string path = await FolderHelper.GeneratePath(id, _folderRepository);
 
             var items = GetAll(userId);
             items = items
@@ -35,58 +29,51 @@ namespace CloudStorage.Infrastructure.Services
             return items;
         }
 
-        public List<FileDto> GetAll(string userId)
+        public List<ItemDto> GetAll(string userId)
         {
-            var items = new List<FileDto>();
-
+            var items = new List<ItemDto>();
             items.AddRange(GetFileInfos(userId));
             items.AddRange(GetFolders(userId));
 
             return items;
         }
 
-        private List<FileDto> GetFileInfos(string userId)
+        private List<ItemDto> GetFileInfos(string userId)
         {
             var infos = _fileInfoRepository
                 .Where(x => x.UserId == userId);
-
-            var dtos = new List<FileDto>();
-
-            if (infos == null)
+            var dtos = new List<ItemDto>();
+            if (infos is null)
             {
                 return dtos;
             }
-
-            infos.ForEach(x => dtos.Add(new FileDto
+            infos.ForEach(x => dtos.Add(new ItemDto
             {
                 Id = x.Id,
                 Name = x.Name,
                 Path = x.PathToFile,
-                Type = nameof(File)
+                Type = nameof(Core.Entities.FileInfo)
             }));
 
             return dtos;
-
         }
 
-        private List<FileDto> GetFolders(string userId)
+        private List<ItemDto> GetFolders(string userId)
         {
             var folders = _folderRepository
                 .Where(x => x.UserId == userId);
+            var dtos = new List<ItemDto>();
 
-            var dtos = new List<FileDto>();
-
-            if(folders == null)
+            if(folders is null)
             {
                 return dtos;
             }
-
-            folders.ForEach(x => dtos.Add(new FileDto
+            folders.ForEach(x => dtos.Add(new ItemDto
             {
                 Id = x.Id,
                 Name = x.Name,
                 Path = x.Path,
-                Type = nameof(Folder)
+                Type = nameof(FolderInfo)
             }));
 
             return dtos;

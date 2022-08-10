@@ -2,9 +2,9 @@
 {
     public class AccountStorage
     {
-        public string UserId { get; }
+        public string UserId { get; set; }
         public long SizeInUse { get; set; } = 0;
-        public long SizeLimit { get; set; } = 1024 * 1024 * 50;
+        public long SizeLimit { get; } = 1024 * 1024 * 50;
 
         public AccountStorage()
         {
@@ -16,27 +16,26 @@
             UserId = userId;
         }
 
-        public void AddFile(long fileSize)
+        public AccountStorage AddFile(long fileSize)
         {
             var size = SizeInUse + fileSize;
 
-            if(size > SizeLimit)
+            if(size < SizeLimit)
             {
-                throw new Exception();
+                SizeInUse = size;
             }
 
-            SizeInUse = size;
+            return this;
         }
 
         public void RemoveFile(long fileSize)
         {
             var size = SizeInUse - fileSize;
-            if(size < 0)
+            
+            if(size >= 0)
             {
-                throw new Exception();
+                SizeInUse = size;
             }
-
-            SizeInUse = size;
         }
     }
 }

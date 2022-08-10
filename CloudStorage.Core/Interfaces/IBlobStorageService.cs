@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace CloudStorage.Core.Interfaces
 {
-    public interface IStorageService
+    public interface IBlobStorageService
     {
         List<string> UploadFiles(List<IFormFile> files);
 

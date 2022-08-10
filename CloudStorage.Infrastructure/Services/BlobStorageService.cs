@@ -7,13 +7,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace CloudStorage.Infrastructure.Services
 {
-    public class StorageService : IStorageService
+    public class BlobStorageService : IBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly IConfiguration _configuration;
         private readonly BlobContainerClient _containerClient;
 
-        public StorageService(BlobServiceClient blobServiceClient,
+        public BlobStorageService(BlobServiceClient blobServiceClient,
             IConfiguration configuration)
         {
             _blobServiceClient = blobServiceClient;
@@ -23,11 +23,6 @@ namespace CloudStorage.Infrastructure.Services
                 (_configuration["Microsoft:BlobStorage:ContainerName"]);
         }
 
-        /// <summary>
-        /// Upload files into Azure Storage Container
-        /// </summary>
-        /// <param name="files">Files to upload to storage</param>
-        /// <returns>Generated names for blobs in Azure Storage</returns>
         public List<string> UploadFiles(List<IFormFile> files)
         {
             var names = new List<string>();
@@ -40,26 +35,14 @@ namespace CloudStorage.Infrastructure.Services
                 using var stream = file.OpenReadStream();
                 blobClient.Upload(stream, true);
                 names.Add(name);
-                
             }
 
             return names;
         }
 
-        /// <summary>
-        /// Get all files info in container
-        /// </summary>
-        /// <returns>Info about items in blobs</returns>
         public Pageable<BlobItem> GetFiles()
-        {
-            return _containerClient.GetBlobs();
-        }
+            => _containerClient.GetBlobs();
 
-
-        /// <summary>
-        /// Remove blobs by names in azure
-        /// </summary>
-        /// <param name="names">Blob names list</param>
         public void RemoveFiles(List<string> names)
         {
             foreach(var name in names)

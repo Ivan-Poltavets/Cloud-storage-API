@@ -12,43 +12,39 @@ namespace CloudStorage.Infrastructure.Services
             _repository = repository;
         }
 
-        public async Task AddFileToStorage(string userId, long size)
+        public async Task<AccountStorage> AddFileToStorage(string userId, long size)
         {
             var accountInfo = await _repository.GetByIdAsync(userId);
-            accountInfo = await CheckForExist(userId, accountInfo);
+            accountInfo = await CreateAccountInfo(userId, accountInfo);
             accountInfo.AddFile(size);
 
             await _repository.UpdateAsync(accountInfo);
             await _repository.SaveChangesAsync();
+
+            return accountInfo;
         }
 
-        public async Task RemoveFileFromStorage(string userId, long size)
+        public async Task<AccountStorage> RemoveFileFromStorage(string userId, long size)
         {
             var accountInfo = await _repository.GetByIdAsync(userId);
             accountInfo.RemoveFile(size);
 
             await _repository.UpdateAsync(accountInfo);
             await _repository.SaveChangesAsync();
+            
+            return accountInfo;
         }
 
-        private async Task<AccountStorage> CheckForExist(string userId, AccountStorage? account)
+        public async Task<AccountStorage> CreateAccountInfo(string userId, AccountStorage? account)
         {
-            if(account == null)
+            if(account is null)
             {
-                return await CreateAccountInfo(userId);
+                account = new AccountStorage(userId);
+                await _repository.AddAsync(account);
+                await _repository.SaveChangesAsync();
             }
 
             return account;
-        }
-
-        private async Task<AccountStorage> CreateAccountInfo(string userId)
-        {
-            var accountInfo = new AccountStorage(userId);
-
-            await _repository.AddAsync(accountInfo);
-            await _repository.SaveChangesAsync();
-
-            return accountInfo;
         }
     }
 }

@@ -10,33 +10,29 @@ namespace CloudStorage.API.Controllers
         private readonly IManageService _manageService;
 
         public FileController(IManageService manageService)
-        {
-            _manageService = manageService;
-        }
+            => _manageService = manageService;
 
         /// <summary>
-        /// Upload files to Blob Storage,
-        /// save info about files, 
-        /// limit size of files in account
+        /// Upload files to Blob Storage, save info about files, limit size of files in account
         /// </summary>
         /// <param name="files">Uploading files</param>
-        /// <param name="currentDirectory">Current directory</param>
-        /// <returns>Status code</returns>
+        /// <param name="currentFolderId">Current directory id</param>
+        /// <returns>Status code 201</returns>
 
         [HttpPost]
         [Route("add-files")]
         public async Task<IActionResult> AddFiles(List<IFormFile> files, Guid? currentFolderId)
         {
             await _manageService.AddFiles(files, UserId, currentFolderId);
-            return Ok();
+            return CreatedAtAction(nameof(AddFiles), files);
         }
 
         /// <summary>
-        /// Remove files from Blob Storage, also remove info, storage info 
+        /// Remove files from Blob Storage, info and storage info 
         /// </summary>
         /// <param name="names">Names of files</param>
-        /// <param name="currentDirectory">Current directory</param>
-        /// <returns>Status code</returns>
+        /// <param name="currentFolderId">Current directory id</param>
+        /// <returns>Status code 204</returns>
 
         [HttpDelete]
         [Route("remove-files")]

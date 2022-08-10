@@ -18,28 +18,30 @@ namespace CloudStorage.API.Controllers
         }
 
         /// <summary>
-        /// Get all items in current directory
+        /// Get all items in main directory
         /// </summary>
-        /// <param name="currentDirectory">Current directory</param>
-        /// <returns>List of FileDtos</returns>
+        /// <returns>List of ItemDto</returns>
 
         [HttpGet]
-        public async Task<ActionResult<List<FileDto>>> GetFiles()
-        {
-            return await _directoryService.GetAllInCurrent(UserId, null);
-        }
+        public async Task<ActionResult<List<ItemDto>>> GetFiles()
+            => await _directoryService.GetAllInCurrent(UserId, null);
+
+        /// <summary>
+        /// Get all items in current directory
+        /// </summary>
+        /// <param name="currentFolderId">Current directory id</param>
+        /// <returns>List of ItemDto</returns>
+        /// 
 
         [HttpGet("folders/{id}")]
-        public async Task<ActionResult<List<FileDto>>> GetFolder(Guid currentFolderId)
-        {
-            return await _directoryService.GetAllInCurrent(UserId, currentFolderId);
-        }
+        public async Task<ActionResult<List<ItemDto>>> GetFolder(Guid currentFolderId)
+            => await _directoryService.GetAllInCurrent(UserId, currentFolderId);
 
         /// <summary>
         /// Add folder and create folder info
         /// </summary>
         /// <param name="folderDto"></param>
-        /// <returns></returns>
+        /// <returns>Status code 201</returns>
 
         [HttpPost]
         [Route("add-folder")]
@@ -52,7 +54,7 @@ namespace CloudStorage.API.Controllers
         /// <summary>
         /// Remove folder and remove folder info
         /// </summary>
-        /// <param name="folderDto">Folder name and path</param>
+        /// <param name="id">Directory id</param>
         /// <returns>Status code</returns>
 
         [HttpDelete]

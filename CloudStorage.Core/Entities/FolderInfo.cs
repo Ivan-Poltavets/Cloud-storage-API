@@ -1,6 +1,6 @@
 ﻿namespace CloudStorage.Core.Entities
 {
-    public class Folder
+    public class FolderInfo
     {
         public Guid Id { get; set; }
         public string UserId { get; set; }
