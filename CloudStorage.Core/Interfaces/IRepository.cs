@@ -7,13 +7,13 @@ namespace CloudStorage.Core.Interfaces
     {
         Task<TEntity> AddAsync(TEntity entity);
 
-        Task AddRangeAsync(IEnumerable<TEntity> entities);
+        Task<List<TEntity>> AddRangeAsync(IEnumerable<TEntity> entities);
 
-        Task UpdateAsync(TEntity entity);
+        Task<TEntity> UpdateAsync(TEntity entity);
 
         Task UpdateRangeAsync(IEnumerable<TEntity> entities);
 
-        Task RemoveAsync(TEntity entity);
+        Task<TEntity> RemoveAsync(TEntity entity);
 
         Task RemoveRangeAsync(IEnumerable<TEntity> entities);
 

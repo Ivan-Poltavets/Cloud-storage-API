@@ -22,10 +22,11 @@ namespace CloudStorage.Infrastructure.Data
             return (await _dbSet.AddAsync(entity)).Entity;
         }
 
-        public async Task AddRangeAsync(IEnumerable<TEntity> entities)
+        public async Task<List<TEntity>> AddRangeAsync(IEnumerable<TEntity> entities)
         {
             CheckForNull(entities);
             await _dbSet.AddRangeAsync(entities);
+            return entities.ToList();
         }
 
         public async Task<List<TEntity>> GetAllAsync()
@@ -37,14 +38,14 @@ namespace CloudStorage.Infrastructure.Data
         public List<TEntity> Where(Expression<Func<TEntity, bool>> expression)
             => _dbSet.Where(expression).ToList();
 
-        public async Task RemoveAsync(TEntity entity)
-            => await Task.Run(() => _dbSet.Remove(entity));
+        public async Task<TEntity> RemoveAsync(TEntity entity)
+            => await Task.Run(() => _dbSet.Remove(entity).Entity);
 
         public async Task RemoveRangeAsync(IEnumerable<TEntity> entities)
             => await Task.Run(() => _dbSet.RemoveRange(entities));
 
-        public async Task UpdateAsync(TEntity entity)
-            => await Task.Run(() => _dbSet.Update(entity));
+        public async Task<TEntity> UpdateAsync(TEntity entity)
+            => await Task.Run(() => _dbSet.Update(entity).Entity);
 
         public async Task UpdateRangeAsync(IEnumerable<TEntity> entities)
             => await Task.Run(() => _dbSet.UpdateRange(entities));
