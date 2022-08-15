@@ -8,34 +8,10 @@ namespace CloudStorage.API.Controllers
     [ApiController]
     public class FolderController : BaseController
     {
-        private readonly IDirectoryService _directoryService;
         private readonly IFolderService _folderService;
 
-        public FolderController(IDirectoryService directoryService, IFolderService folderService)
-        {
-            _directoryService = directoryService;
-            _folderService = folderService;
-        }
-
-        /// <summary>
-        /// Get all items in main directory
-        /// </summary>
-        /// <returns>List of ItemDto</returns>
-
-        [HttpGet]
-        public async Task<ActionResult<List<ItemDto>>> GetFiles()
-            => await _directoryService.GetAllInCurrent(UserId, null);
-
-        /// <summary>
-        /// Get all items in current directory
-        /// </summary>
-        /// <param name="currentFolderId">Current directory id</param>
-        /// <returns>List of ItemDto</returns>
-        /// 
-
-        [HttpGet("folders/")]
-        public async Task<ActionResult<List<ItemDto>>> GetFolders(Guid currentFolderId)
-            => await _directoryService.GetAllInCurrent(UserId, currentFolderId);
+        public FolderController(IFolderService folderService)
+            => _folderService = folderService;
 
         /// <summary>
         /// Add folder and create folder info
