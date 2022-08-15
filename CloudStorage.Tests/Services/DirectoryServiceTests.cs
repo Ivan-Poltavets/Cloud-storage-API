@@ -1,4 +1,5 @@
-﻿using CloudStorage.Core.Dtos;
+﻿using AutoMapper;
+using CloudStorage.Core.Dtos;
 using Moq;
 using Xunit;
 using CloudStorage.Core.Entities;
@@ -14,12 +15,21 @@ public class DirectoryServiceTests
     private readonly DirectoryService _sut;
     private readonly Mock<IRepository<FileInfo>>_fileInfoRepoMock;
     private readonly Mock<IRepository<FolderInfo>> _folderRepoMock;
+    private readonly Mock<IFolderService> _folderServiceMock;
+    private readonly Mock<IFileService> _fileServiceMock;
+    private readonly Mock<IMapper> _mapperMock;
 
     public DirectoryServiceTests()
     {
+        _mapperMock = new Mock<IMapper>();
+        _fileServiceMock = new Mock<IFileService>();
+        _folderServiceMock = new Mock<IFolderService>();
         _fileInfoRepoMock = new Mock<IRepository<FileInfo>>();
         _folderRepoMock = new Mock<IRepository<FolderInfo>>();
-        _sut = new DirectoryService(_fileInfoRepoMock.Object, _folderRepoMock.Object);
+        _sut = new DirectoryService(
+            _fileServiceMock.Object,
+            _folderServiceMock.Object,
+            _mapperMock.Object);
     }
 
     [Theory]
@@ -27,15 +37,18 @@ public class DirectoryServiceTests
     public async Task GetAllInCurrent_WithoutFolderId(string userId)
     {
         var data = new DataSeed(userId);
-        var expected = new List<ItemDto>();
-        data.FileInfosTest.ForEach(x => expected.Add(new ItemDto()
+        var expectedFiles = new List<ItemDto>();
+        var fileServiceReturn = data.FileInfosTest.Where(f => f.Path == "~").ToList();
+        var folderServiceReturn = data.FolderInfosTest.Where(f => f.Path == "~").ToList();
+        fileServiceReturn.ForEach(x => expectedFiles.Add(new ItemDto()
         {
             Id = x.Id,
             Name = x.Name,
-            Path = x.PathToFile,
+            Path = x.Path,
             Type = nameof(FileInfo)
         }));
-        data.FolderInfosTest.ForEach(x => expected.Add(new ItemDto()
+        var expectedFolders = new List<ItemDto>();
+        folderServiceReturn.ForEach(x => expectedFolders.Add(new ItemDto()
         {
             Id = x.Id,
             Name = x.Name,
@@ -43,17 +56,15 @@ public class DirectoryServiceTests
             Type = nameof(FolderInfo)
         }));
 
-        _fileInfoRepoMock.Setup(x => x.AddRangeAsync(data.FileInfosTest))
-            .ReturnsAsync(data.FileInfosTest);
-        _folderRepoMock.Setup(x => x.AddRangeAsync(data.FolderInfosTest))
-            .ReturnsAsync(data.FolderInfosTest);
-        _folderRepoMock.Setup(x => x.Where(x => x.UserId == userId))
-            .Returns(data.FolderInfosTest);
-        _fileInfoRepoMock.Setup(x => x.Where(x => x.UserId == userId))
-            .Returns(data.FileInfosTest);
+        _fileServiceMock.Setup(x => x.GetFiles(userId, null))
+            .ReturnsAsync(fileServiceReturn);
+        _folderServiceMock.Setup(x => x.GetFolders(userId, null))
+            .ReturnsAsync(folderServiceReturn);
+        _mapperMock.Setup(x => x.Map<List<FolderInfo>, List<ItemDto>>(folderServiceReturn))
+            .Returns(expectedFolders);
+        _mapperMock.Setup(x => x.Map<List<FileInfo>, List<ItemDto>>(fileServiceReturn))
+            .Returns(expectedFiles);
         
-        await _fileInfoRepoMock.Object.AddRangeAsync(data.FileInfosTest);
-        await _folderRepoMock.Object.AddRangeAsync(data.FolderInfosTest);
         var result = await _sut.GetAllInCurrent(userId, null);
         
         Assert.Equal(typeof(List<ItemDto>), result.GetType());
@@ -66,35 +77,35 @@ public class DirectoryServiceTests
     public async Task GetAllInCurrent_WithFolderId(string userId)
     {
         var data = new DataSeed(userId);
-        var expected = new List<ItemDto>();
-        data.FileInfosTest.ForEach(x => expected.Add(new ItemDto()
+        var expectedFiles = new List<ItemDto>();
+        var folder = data.FolderInfosTest.Single(x => x.Name == "folder");
+        var fileServiceReturn = data.FileInfosTest.Where(f => f.Path == folder.Path).ToList();
+        var folderServiceReturn = data.FolderInfosTest.Where(f => f.Path == folder.Path).ToList();
+        fileServiceReturn.ForEach(x => expectedFiles.Add(new ItemDto()
         {
             Id = x.Id,
             Name = x.Name,
-            Path = x.PathToFile,
+            Path = x.Path,
             Type = nameof(FileInfo)
         }));
-        data.FolderInfosTest.ForEach(x => expected.Add(new ItemDto()
+        var expectedFolders = new List<ItemDto>();
+        folderServiceReturn.ForEach(x => expectedFolders.Add(new ItemDto()
         {
             Id = x.Id,
             Name = x.Name,
             Path = x.Path,
             Type = nameof(FolderInfo)
         }));
-        var folder = data.FolderInfosTest.Single(x => x.Name == "folder");
-        _fileInfoRepoMock.Setup(x => x.AddRangeAsync(data.FileInfosTest))
-            .ReturnsAsync(data.FileInfosTest);
-        _folderRepoMock.Setup(x => x.AddRangeAsync(data.FolderInfosTest))
-            .ReturnsAsync(data.FolderInfosTest);
-        _folderRepoMock.Setup(x => x.Where(x => x.UserId == userId))
-            .Returns(data.FolderInfosTest);
-        _fileInfoRepoMock.Setup(x => x.Where(x => x.UserId == userId))
-            .Returns(data.FileInfosTest);
-        _folderRepoMock.Setup(x => x.GetByIdAsync(folder.Id))
-            .ReturnsAsync(folder);
         
-        await _fileInfoRepoMock.Object.AddRangeAsync(data.FileInfosTest);
-        await _folderRepoMock.Object.AddRangeAsync(data.FolderInfosTest);
+        _fileServiceMock.Setup(x => x.GetFiles(userId, folder.Id))
+            .ReturnsAsync(fileServiceReturn);
+        _folderServiceMock.Setup(x => x.GetFolders(userId, folder.Id))
+            .ReturnsAsync(folderServiceReturn);
+        _mapperMock.Setup(x => x.Map<List<FolderInfo>, List<ItemDto>>(folderServiceReturn))
+            .Returns(expectedFolders);
+        _mapperMock.Setup(x => x.Map<List<FileInfo>, List<ItemDto>>(fileServiceReturn))
+            .Returns(expectedFiles);
+        
         var result = await _sut.GetAllInCurrent(userId, folder.Id);
         
         Assert.Equal(typeof(List<ItemDto>), result.GetType());

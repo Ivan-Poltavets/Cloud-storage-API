@@ -6,7 +6,7 @@
         public string UserId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string BlobName { get; set; } = string.Empty;
-        public string PathToFile { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
         public long Size { get; set; }
 
         public FileInfo()
@@ -14,13 +14,13 @@
             
         }
         
-        public FileInfo(string userId, string name, string pathToFile, long size)
+        public FileInfo(string userId, string name, string path, long size)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             Name = name;
             BlobName = Guid.NewGuid().ToString();
-            PathToFile = pathToFile;
+            Path = path;
             Size = size;
         }
     }

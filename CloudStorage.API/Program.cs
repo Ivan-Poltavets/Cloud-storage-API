@@ -2,11 +2,13 @@ using CloudStorage.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using CloudStorage.Infrastructure;
+using CloudStorage.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var services = builder.Services;
 
+services.AddCore(configuration);
 services.AddInfrastructure(configuration);
 
 services.AddIdentity<IdentityUser, IdentityRole>()
@@ -20,8 +22,8 @@ services.AddAuthentication(options =>
 })
     .AddGoogle(options =>
     {
-        options.ClientId = configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+        options.ClientId = configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
     });
 
 services.AddCors();

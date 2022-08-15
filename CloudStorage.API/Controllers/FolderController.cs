@@ -9,12 +9,12 @@ namespace CloudStorage.API.Controllers
     public class FolderController : BaseController
     {
         private readonly IDirectoryService _directoryService;
-        private readonly IManageService _manageService;
+        private readonly IFolderService _folderService;
 
-        public FolderController(IDirectoryService directoryService, IManageService manageService)
+        public FolderController(IDirectoryService directoryService, IFolderService folderService)
         {
             _directoryService = directoryService;
-            _manageService = manageService;
+            _folderService = folderService;
         }
 
         /// <summary>
@@ -33,8 +33,8 @@ namespace CloudStorage.API.Controllers
         /// <returns>List of ItemDto</returns>
         /// 
 
-        [HttpGet("folders/{id}")]
-        public async Task<ActionResult<List<ItemDto>>> GetFolder(Guid currentFolderId)
+        [HttpGet("folders/")]
+        public async Task<ActionResult<List<ItemDto>>> GetFolders(Guid currentFolderId)
             => await _directoryService.GetAllInCurrent(UserId, currentFolderId);
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace CloudStorage.API.Controllers
         [Route("add-folder")]
         public async Task<IActionResult> AddFolder(FolderDto folderDto, Guid? currentFolderId)
         {
-            await _manageService.AddFolder(folderDto, UserId, currentFolderId);
+            await _folderService.AddFolder(folderDto, UserId, currentFolderId);
             return CreatedAtAction(nameof(AddFolder), folderDto);
         }
 
@@ -61,7 +61,7 @@ namespace CloudStorage.API.Controllers
         [Route("remove-folder")]
         public async Task<IActionResult> RemoveFolder(Guid id)
         {
-            await _manageService.RemoveFolder(id);
+            await _folderService.RemoveFolder(id);
             return NoContent();
         }
     }

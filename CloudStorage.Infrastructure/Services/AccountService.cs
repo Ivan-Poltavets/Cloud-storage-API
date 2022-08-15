@@ -8,9 +8,7 @@ namespace CloudStorage.Infrastructure.Services
         private readonly IRepository<AccountStorage> _repository;
 
         public AccountService(IRepository<AccountStorage> repository)
-        {
-            _repository = repository;
-        }
+            => _repository = repository;
 
         public async Task<AccountStorage> AddFileToStorage(string userId, long size)
         {

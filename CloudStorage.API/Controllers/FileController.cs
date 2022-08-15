@@ -7,10 +7,10 @@ namespace CloudStorage.API.Controllers
     [ApiController]
     public class FileController : BaseController
     {
-        private readonly IManageService _manageService;
+        private readonly IFileService _fileService;
 
-        public FileController(IManageService manageService)
-            => _manageService = manageService;
+        public FileController(IFileService fileService)
+            => _fileService = fileService;
 
         /// <summary>
         /// Upload files to Blob Storage, save info about files, limit size of files in account
@@ -23,7 +23,7 @@ namespace CloudStorage.API.Controllers
         [Route("add-files")]
         public async Task<IActionResult> AddFiles(List<IFormFile> files, Guid? currentFolderId)
         {
-            await _manageService.AddFiles(files, UserId, currentFolderId);
+            await _fileService.AddFiles(files, UserId, currentFolderId);
             return CreatedAtAction(nameof(AddFiles), files);
         }
 
@@ -38,7 +38,7 @@ namespace CloudStorage.API.Controllers
         [Route("remove-files")]
         public async Task<IActionResult> RemoveFiles(List<string> names, Guid? currentFolderId)
         {
-            await _manageService.RemoveFiles(names, UserId, currentFolderId);
+            await _fileService.RemoveFiles(names, UserId, currentFolderId);
             return NoContent();
         }
     }

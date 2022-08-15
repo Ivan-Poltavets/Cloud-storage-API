@@ -11,7 +11,7 @@ namespace CloudStorage.Infrastructure
 {
     public static class InfrastructureModule
     {
-        public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAzureClients(config =>
             {
@@ -33,9 +33,12 @@ namespace CloudStorage.Infrastructure
             services.AddScoped<IRepository<AccountStorage>, Repository<AccountStorage>>();
 
             services.AddTransient<IBlobStorageService, BlobStorageService>();
-            services.AddTransient<IManageService, ManageService>();
+            services.AddTransient<IFileService, FileService>();
+            services.AddTransient<IFolderService, FolderService>();
             services.AddTransient<IDirectoryService, DirectoryService>();
             services.AddTransient<IAccountService, AccountService>();
+
+            return services;
         }
     }
 }
