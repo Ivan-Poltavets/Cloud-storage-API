@@ -7,7 +7,7 @@ public interface IFileService
 {
     Task<List<FileInfo>> AddFiles(List<IFormFile> files, string userId, Guid? currentFolderId);
 
-    Task<List<FileInfo>> RemoveFiles(List<string> names, string userId, Guid? currentFolderId);
+    Task<List<FileInfo>> RemoveFiles(List<Guid> ids, string userId);
 
     Task<List<FileInfo>> GetFiles(string userId, Guid? currentFolderId);
 }

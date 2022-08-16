@@ -38,29 +38,22 @@ namespace CloudStorage.Tests.Services
         public async Task CreateAccountInfo_WhenNotExists(string userId)
         {
             var expected = new AccountStorage(userId);
-            _accountRepoMock.Setup(x => x.AddAsync(expected))
-                .ReturnsAsync(expected);
-            _accountRepoMock.Setup(x => x.SaveChangesAsync())
-                .ReturnsAsync(It.IsAny<int>);
 
             var result = await _sut.CreateAccountInfo(userId, null);
 
             Assert.NotNull(result);
             Assert.Equal(expected.UserId, result.UserId);
+            _accountRepoMock.Verify(x => x.SaveChangesAsync(), Times.Once());
         }
 
         [Theory]
         [AutoDomainData]
         public async Task CreateAccountInfo_WhenExists(AccountStorage account)
         {
-            var check = new AccountStorage(account.UserId);
-            _accountRepoMock.Setup(x => x.AddAsync(account))
-                .ReturnsAsync(account);
-            await _accountRepoMock.Object.AddAsync(account);
-            
-            var result = await _sut.CreateAccountInfo(account.UserId, check);
+            var result = await _sut.CreateAccountInfo(account.UserId, account);
 
-            Assert.NotEqual(account.SizeInUse, result.SizeInUse);
+            Assert.Equal(account.SizeInUse, result.SizeInUse);
+            _accountRepoMock.Verify(x => x.SaveChangesAsync(), Times.Never());
         }
 
         [Theory]
@@ -68,12 +61,10 @@ namespace CloudStorage.Tests.Services
         public async Task RemoveFileFromStorage_NegativeSize(AccountStorage account)
         {
             long size = account.SizeInUse + 100;
-            _accountRepoMock.Setup(x => x.AddAsync(account))
-                .ReturnsAsync(account);
+
             _accountRepoMock.Setup(x => x.GetByIdAsync(account.UserId))
                 .ReturnsAsync(account);
-            await _accountRepoMock.Object.AddAsync(account);
-            
+
             var result = await _sut.RemoveFileFromStorage(account.UserId, size);
             
             Assert.Equal(account.SizeInUse, result.SizeInUse);
@@ -85,11 +76,8 @@ namespace CloudStorage.Tests.Services
         {
             long size = account.SizeInUse;
             long expectedSize = account.SizeInUse - size;
-            _accountRepoMock.Setup(x => x.AddAsync(account))
-                .ReturnsAsync(account);
             _accountRepoMock.Setup(x => x.GetByIdAsync(account.UserId))
                 .ReturnsAsync(account);
-            await _accountRepoMock.Object.AddAsync(account);
 
             var result = await _sut.RemoveFileFromStorage(account.UserId, size);
             

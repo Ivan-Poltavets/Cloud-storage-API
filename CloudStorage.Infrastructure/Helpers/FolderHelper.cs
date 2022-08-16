@@ -2,21 +2,25 @@
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
 
-namespace CloudStorage.Infrastructure.Helpers
+namespace CloudStorage.Infrastructure.Helpers;
+
+public class FolderHelper : IFolderHelper
 {
-    public static class FolderHelper
+    private readonly IRepository<FolderInfo> _repository;
+
+    public FolderHelper(IRepository<FolderInfo> repository)
+        => _repository = repository;
+
+    public async Task<string> GeneratePathAsync(Guid? folderId)
     {
-        public static async Task<string> GeneratePath(Guid? folderId, IRepository<FolderInfo> repository)
+        string path = Constants.MainDirectory;
+
+        if (folderId is not null)
         {
-            string path = Constants.MainDirectory;
-
-            if (folderId is not null)
-            {
-                var folder = await repository.GetByIdAsync(folderId);
-                path = Path.Combine(folder.Path, folder.Name.ToLower());
-            }
-
-            return path;
+            var folder = await _repository.GetByIdAsync(folderId);
+            path = Path.Combine(folder.Path, folder.Name.ToLower());
         }
+
+        return path;
     }
 }

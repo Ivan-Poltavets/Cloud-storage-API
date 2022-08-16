@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AutoFixture.Xunit2;
+using AutoMapper;
 using CloudStorage.Core.Dtos;
 using Moq;
 using Xunit;
@@ -13,8 +14,6 @@ namespace CloudStorage.Tests.Services;
 public class DirectoryServiceTests
 {
     private readonly DirectoryService _sut;
-    private readonly Mock<IRepository<FileInfo>>_fileInfoRepoMock;
-    private readonly Mock<IRepository<FolderInfo>> _folderRepoMock;
     private readonly Mock<IFolderService> _folderServiceMock;
     private readonly Mock<IFileService> _fileServiceMock;
     private readonly Mock<IMapper> _mapperMock;
@@ -24,19 +23,17 @@ public class DirectoryServiceTests
         _mapperMock = new Mock<IMapper>();
         _fileServiceMock = new Mock<IFileService>();
         _folderServiceMock = new Mock<IFolderService>();
-        _fileInfoRepoMock = new Mock<IRepository<FileInfo>>();
-        _folderRepoMock = new Mock<IRepository<FolderInfo>>();
         _sut = new DirectoryService(
             _fileServiceMock.Object,
             _folderServiceMock.Object,
             _mapperMock.Object);
     }
 
-    [Theory]
-    [AutoDomainData]
-    public async Task GetAllInCurrent_WithoutFolderId(string userId)
+    [Fact]
+    public async Task GetAllInCurrent_WithoutFolderId()
     {
-        var data = new DataSeed(userId);
+        var data = new DataSeed();
+        string userId = data.UserId;
         var expectedFiles = new List<ItemDto>();
         var fileServiceReturn = data.FileInfosTest.Where(f => f.Path == "~").ToList();
         var folderServiceReturn = data.FolderInfosTest.Where(f => f.Path == "~").ToList();
@@ -72,11 +69,11 @@ public class DirectoryServiceTests
         Assert.Equal(3,result.Count);
     }
 
-    [Theory]
-    [AutoDomainData]
-    public async Task GetAllInCurrent_WithFolderId(string userId)
+    [Fact]
+    public async Task GetAllInCurrent_WithFolderId()
     {
-        var data = new DataSeed(userId);
+        var data = new DataSeed();
+        string userId = data.UserId;
         var expectedFiles = new List<ItemDto>();
         var folder = data.FolderInfosTest.Single(x => x.Name == "folder");
         var fileServiceReturn = data.FileInfosTest.Where(f => f.Path == folder.Path).ToList();

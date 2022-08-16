@@ -1,20 +1,24 @@
 ﻿using CloudStorage.Core.Dtos;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
-using CloudStorage.Infrastructure.Helpers;
 
 namespace CloudStorage.Infrastructure.Services;
 
 public class FolderService : IFolderService
 {
     private readonly IRepository<FolderInfo> _folderRepository;
+    private readonly IFolderHelper _folderHelper;
 
-    public FolderService(IRepository<FolderInfo> folderRepository)
-        => _folderRepository = folderRepository;
+    public FolderService(IRepository<FolderInfo> folderRepository,
+        IFolderHelper folderHelper)
+    {
+        _folderRepository = folderRepository;
+        _folderHelper = folderHelper;
+    }
     
     public async Task<FolderInfo> AddFolder(FolderDto folderDto, string userId, Guid? currentFolderId)
     {
-        string path = await FolderHelper.GeneratePath(currentFolderId, _folderRepository);
+        string path = await _folderHelper.GeneratePathAsync(currentFolderId);
         var folder = new FolderInfo
         {
             Id = Guid.NewGuid(),
@@ -47,7 +51,7 @@ public class FolderService : IFolderService
 
     public async Task<List<FolderInfo>> GetFolders(string userId, Guid? currentFolderId)
     {
-        string path = await FolderHelper.GeneratePath(currentFolderId, _folderRepository);
+        string path = await _folderHelper.GeneratePathAsync(currentFolderId);
         var folders = _folderRepository
             .Where(x => x.UserId == userId && x.Path == path);
         return folders;

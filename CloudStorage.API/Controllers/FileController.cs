@@ -20,7 +20,6 @@ namespace CloudStorage.API.Controllers
         /// <returns>Status code 201</returns>
 
         [HttpPost]
-        [Route("add-files")]
         public async Task<IActionResult> AddFiles(List<IFormFile> files, Guid? currentFolderId)
         {
             await _fileService.AddFiles(files, UserId, currentFolderId);
@@ -35,10 +34,9 @@ namespace CloudStorage.API.Controllers
         /// <returns>Status code 204</returns>
 
         [HttpDelete]
-        [Route("remove-files")]
-        public async Task<IActionResult> RemoveFiles(List<string> names, Guid? currentFolderId)
+        public async Task<IActionResult> RemoveFiles(List<Guid> ids)
         {
-            await _fileService.RemoveFiles(names, UserId, currentFolderId);
+            await _fileService.RemoveFiles(ids, UserId);
             return NoContent();
         }
     }
