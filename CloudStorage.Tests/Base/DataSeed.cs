@@ -1,5 +1,4 @@
-﻿
-using CloudStorage.Core.Entities;
+﻿using CloudStorage.Core.Entities;
 using FileInfo = CloudStorage.Core.Entities.FileInfo;
 
 namespace CloudStorage.Tests.Base;

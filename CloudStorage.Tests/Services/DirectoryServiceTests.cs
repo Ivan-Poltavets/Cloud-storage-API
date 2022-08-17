@@ -1,5 +1,4 @@
-﻿using AutoFixture.Xunit2;
-using AutoMapper;
+﻿using AutoMapper;
 using CloudStorage.Core.Dtos;
 using Moq;
 using Xunit;

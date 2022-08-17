@@ -1,13 +1,10 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
-using AutoFixture.Kernel;
-using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
 using CloudStorage.Infrastructure.Services;
 using CloudStorage.Tests.Base;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using System.IO;
 using Xunit;
 using FileInfo = CloudStorage.Core.Entities.FileInfo;
 
