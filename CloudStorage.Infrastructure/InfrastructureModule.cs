@@ -21,7 +21,7 @@ namespace CloudStorage.Infrastructure
 
             services.AddDbContext<AuthDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("AuthContext"));
+                options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQL:Connection"));
             });
 
             services.AddDbContext<CosmosDbContext>(options =>

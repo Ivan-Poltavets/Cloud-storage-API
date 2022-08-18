@@ -1,6 +1,4 @@
-﻿using CloudStorage.Core.Entities;
-using CloudStorage.Infrastructure.Data.Config;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
