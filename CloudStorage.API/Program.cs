@@ -24,6 +24,8 @@ services.AddAuthentication(options =>
     {
         options.ClientId = Environment.GetEnvironmentVariable("Google:ClienId");
         options.ClientSecret = Environment.GetEnvironmentVariable("Google:ClientSecret");
+        options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
+        options.CallbackPath = "/signin-google";
     });
 
 services.AddCors();
