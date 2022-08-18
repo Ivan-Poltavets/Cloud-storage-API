@@ -60,7 +60,7 @@ public class FileServiceTests
         _storageService.Setup(x => x.UploadFiles(files))
             .Returns(names);
         
-        var result = await _sut.AddFiles(files, userId,folder.Id);
+        var result = await _sut.AddFilesAsync(files, userId,folder.Id);
         
         Assert.Equal(typeof(List<FileInfo>), result.GetType());
         result.ForEach(x => Assert.True(x.Path == folder.Path));
@@ -78,7 +78,7 @@ public class FileServiceTests
         _fileRepository.Setup(x => x.Where(x => deleteIds.Contains(x.Id) && x.UserId == userId))
             .Returns(files);
         
-        await _sut.RemoveFiles(deleteIds, userId);
+        await _sut.RemoveFilesAsync(deleteIds, userId);
         
         _fileRepository.Verify(x => x.RemoveRangeAsync(files), Times.Once());
         _fileRepository.Verify(x => x.SaveChangesAsync(), Times.Once());

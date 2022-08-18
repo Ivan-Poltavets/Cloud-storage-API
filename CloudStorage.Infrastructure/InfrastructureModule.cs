@@ -31,7 +31,7 @@ namespace CloudStorage.Infrastructure
 
             services.AddScoped<IRepository<FolderInfo>, Repository<FolderInfo>>();
             services.AddScoped<IRepository<Core.Entities.FileInfo>, Repository<Core.Entities.FileInfo>>();
-            services.AddScoped<IRepository<AccountStorage>, Repository<AccountStorage>>();
+            services.AddScoped<IRepository<AccountExtension>, Repository<AccountExtension>>();
 
             services.AddTransient<IBlobStorageService, BlobStorageService>();
             services.AddTransient<IFileService, FileService>();
@@ -39,7 +39,7 @@ namespace CloudStorage.Infrastructure
             services.AddTransient<IDirectoryService, DirectoryService>();
             services.AddTransient<IAccountService, AccountService>();
 
-            services.AddSingleton<IFolderHelper, FolderHelper>();
+            services.AddTransient<IFolderHelper, FolderHelper>();
 
             return services;
         }

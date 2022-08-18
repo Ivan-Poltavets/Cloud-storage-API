@@ -1,22 +1,22 @@
 ﻿namespace CloudStorage.Core.Entities
 {
-    public class AccountStorage
+    public class AccountExtension
     {
         public string UserId { get; set; }
         public long SizeInUse { get; set; } = 0;
         public long SizeLimit { get; } = 1024 * 1024 * 50;
 
-        public AccountStorage()
+        public AccountExtension()
         {
 
         }
 
-        public AccountStorage(string userId)
+        public AccountExtension(string userId)
         {
             UserId = userId;
         }
 
-        public AccountStorage AddFile(long fileSize)
+        public AccountExtension AddFile(long fileSize)
         {
             var size = SizeInUse + fileSize;
 

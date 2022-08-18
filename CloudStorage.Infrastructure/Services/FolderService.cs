@@ -16,7 +16,7 @@ public class FolderService : IFolderService
         _folderHelper = folderHelper;
     }
     
-    public async Task<FolderInfo> AddFolder(FolderDto folderDto, string userId, Guid? currentFolderId)
+    public async Task<FolderInfo> AddFolderAsync(FolderDto folderDto, string userId, Guid? currentFolderId)
     {
         string path = await _folderHelper.GeneratePathAsync(currentFolderId);
         var folder = new FolderInfo
@@ -32,7 +32,7 @@ public class FolderService : IFolderService
         return folder;
     }
     
-    public async Task<FolderInfo> RemoveFolder(Guid id)
+    public async Task<FolderInfo> RemoveFolderAsync(Guid id)
     {
         var folder = await _folderRepository
             .GetByIdAsync(id);
@@ -49,7 +49,7 @@ public class FolderService : IFolderService
         return folder;
     }
 
-    public async Task<List<FolderInfo>> GetFolders(string userId, Guid? currentFolderId)
+    public async Task<List<FolderInfo>> GetFoldersAsync(string userId, Guid? currentFolderId)
     {
         string path = await _folderHelper.GeneratePathAsync(currentFolderId);
         var folders = _folderRepository

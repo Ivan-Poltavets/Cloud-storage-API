@@ -5,39 +5,39 @@ namespace CloudStorage.Infrastructure.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly IRepository<AccountStorage> _repository;
+    private readonly IRepository<AccountExtension> _repository;
 
-    public AccountService(IRepository<AccountStorage> repository)
+    public AccountService(IRepository<AccountExtension> repository)
         => _repository = repository;
 
-    public async Task<AccountStorage> AddFileToStorage(string userId, long size)
+    public async Task<AccountExtension> AddFileToStorageAsync(string userId, long size)
     {
-        var accountInfo = await _repository.GetByIdAsync(userId);
-        accountInfo = await CreateAccountInfo(userId, accountInfo);
-        accountInfo.AddFile(size);
+        var account = await _repository.GetByIdAsync(userId);
+        account = await CreateAccountInfoAsync(userId, account);
+        account.AddFile(size);
 
-        await _repository.UpdateAsync(accountInfo);
+        await _repository.UpdateAsync(account);
         await _repository.SaveChangesAsync();
 
-        return accountInfo;
+        return account;
     }
 
-    public async Task<AccountStorage> RemoveFileFromStorage(string userId, long size)
+    public async Task<AccountExtension> RemoveFileFromStorageAsync(string userId, long size)
     {
-        var accountInfo = await _repository.GetByIdAsync(userId);
-        accountInfo.RemoveFile(size);
+        var account = await _repository.GetByIdAsync(userId);
+        account.RemoveFile(size);
 
-        await _repository.UpdateAsync(accountInfo);
+        await _repository.UpdateAsync(account);
         await _repository.SaveChangesAsync();
         
-        return accountInfo;
+        return account;
     }
 
-    public async Task<AccountStorage> CreateAccountInfo(string userId, AccountStorage? account)
+    public async Task<AccountExtension> CreateAccountInfoAsync(string userId, AccountExtension? account)
     {
         if(account is null)
         {
-            account = new AccountStorage(userId);
+            account = new AccountExtension(userId);
             await _repository.AddAsync(account);
             await _repository.SaveChangesAsync();
         }

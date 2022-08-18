@@ -31,7 +31,7 @@ public class FolderServiceTests
         _folderHelper.Setup(x => x.GeneratePathAsync(folderId))
             .ReturnsAsync(Constants.MainDirectory);
         
-        var result = await _sut.AddFolder(dto, data.UserId, folderId);
+        var result = await _sut.AddFolderAsync(dto, data.UserId, folderId);
         
         Assert.Equal(dto.Name, result.Name);
         _folderRepo.Verify(x => x.SaveChangesAsync(), Times.Once());
@@ -46,7 +46,7 @@ public class FolderServiceTests
         _folderRepo.Setup(x => x.Where(f => f.Path.StartsWith(folder.Path)))
             .Returns((List<FolderInfo>)null);
         
-        await _sut.RemoveFolder(folder.Id);
+        await _sut.RemoveFolderAsync(folder.Id);
         
         _folderRepo.Verify(x => x.RemoveAsync(folder), Times.Once());
         _folderRepo.Verify(x => x.SaveChangesAsync(), Times.Once());

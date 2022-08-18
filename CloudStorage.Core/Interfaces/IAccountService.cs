@@ -4,8 +4,8 @@ namespace CloudStorage.Core.Interfaces
 {
     public interface IAccountService
     {
-        Task<AccountStorage> AddFileToStorage(string userId, long size);
+        Task<AccountExtension> AddFileToStorageAsync(string userId, long size);
 
-        Task<AccountStorage> RemoveFileFromStorage(string userId, long size);
+        Task<AccountExtension> RemoveFileFromStorageAsync(string userId, long size);
     }
 }

@@ -22,10 +22,10 @@ public class DirectoryService : IDirectoryService
         _mapper = mapper;
     }
 
-    public async Task<List<ItemDto>> GetAllInCurrent(string userId, Guid? id)
+    public async Task<List<ItemDto>> GetAllInCurrentAsync(string userId, Guid? id)
     {
-        var folders = await _folderService.GetFolders(userId, id);
-        var files = await _fileService.GetFiles(userId, id);
+        var folders = await _folderService.GetFoldersAsync(userId, id);
+        var files = await _fileService.GetFilesAsync(userId, id);
 
         var items = _mapper.Map<List<FolderInfo>, List<ItemDto>>(folders);
         items.AddRange(_mapper.Map<List<FileInfo>, List<ItemDto>>(files));

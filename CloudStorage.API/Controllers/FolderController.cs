@@ -22,7 +22,7 @@ namespace CloudStorage.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddFolder(FolderDto folderDto, Guid? currentFolderId)
         {
-            await _folderService.AddFolder(folderDto, UserId, currentFolderId);
+            await _folderService.AddFolderAsync(folderDto, UserId, currentFolderId);
             return CreatedAtAction(nameof(AddFolder), folderDto);
         }
 
@@ -35,7 +35,7 @@ namespace CloudStorage.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveFolder(Guid id)
         {
-            await _folderService.RemoveFolder(id);
+            await _folderService.RemoveFolderAsync(id);
             return NoContent();
         }
     }

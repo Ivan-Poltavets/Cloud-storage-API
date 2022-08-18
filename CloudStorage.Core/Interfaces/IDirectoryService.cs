@@ -4,6 +4,6 @@ namespace CloudStorage.Core.Interfaces
 {
     public interface IDirectoryService
     {
-        Task<List<ItemDto>> GetAllInCurrent(string userId, Guid? id);
+        Task<List<ItemDto>> GetAllInCurrentAsync(string userId, Guid? id);
     }
 }

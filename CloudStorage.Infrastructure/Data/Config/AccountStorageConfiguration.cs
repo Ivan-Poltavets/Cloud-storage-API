@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CloudStorage.Infrastructure.Data.Config
 {
-    public class AccountStorageConfiguration : IEntityTypeConfiguration<AccountStorage>
+    public class AccountStorageConfiguration : IEntityTypeConfiguration<AccountExtension>
     {
-        public void Configure(EntityTypeBuilder<AccountStorage> builder)
+        public void Configure(EntityTypeBuilder<AccountExtension> builder)
         {
             builder.HasKey(x => x.UserId);
         }

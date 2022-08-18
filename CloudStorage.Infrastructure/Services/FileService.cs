@@ -1,6 +1,4 @@
-﻿using CloudStorage.Core.Entities;
-using CloudStorage.Core.Interfaces;
-using CloudStorage.Infrastructure.Helpers;
+﻿using CloudStorage.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using FileInfo = CloudStorage.Core.Entities.FileInfo;
 
@@ -25,19 +23,19 @@ public class FileService : IFileService
         _folderHelper = folderHelper;
     }
     
-    public async Task<List<FileInfo>> AddFiles(List<IFormFile> files, string userId, Guid? currentFolderId)
+    public async Task<List<FileInfo>> AddFilesAsync(List<IFormFile> files, string userId, Guid? currentFolderId)
     {
         long size = 0;
-        var fileInfos = new List<FileInfo>();
+        var file = new List<FileInfo>();
         string path = await _folderHelper.GeneratePathAsync(currentFolderId);
 
         files.ForEach(x => size += x.Length);
-        await _accountService.AddFileToStorage(userId, size);
+        await _accountService.AddFileToStorageAsync(userId, size);
 
         var names = _storageService.UploadFiles(files);
         for(int i = 0; i < files.Count; i++)
         {
-            fileInfos.Add(new FileInfo
+            file.Add(new FileInfo
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
@@ -48,12 +46,12 @@ public class FileService : IFileService
             });
         }
 
-        await _fileRepository.AddRangeAsync(fileInfos);
+        await _fileRepository.AddRangeAsync(file);
         await _fileRepository.SaveChangesAsync();
-        return fileInfos;
+        return file;
     }
 
-    public async Task<List<FileInfo>> RemoveFiles(List<Guid> ids, string userId)
+    public async Task<List<FileInfo>> RemoveFilesAsync(List<Guid> ids, string userId)
     {
         long size = 0;
         var fileInfos = _fileRepository
@@ -68,17 +66,17 @@ public class FileService : IFileService
 
         _storageService.RemoveFiles(blobNames);
         
-        await _accountService.RemoveFileFromStorage(userId, size);
+        await _accountService.RemoveFileFromStorageAsync(userId, size);
         await _fileRepository.RemoveRangeAsync(fileInfos);
         await _fileRepository.SaveChangesAsync();
         return fileInfos;
     }
     
-    public async Task<List<FileInfo>> GetFiles(string userId, Guid? currentFolderId)
+    public async Task<List<FileInfo>> GetFilesAsync(string userId, Guid? currentFolderId)
     {
         string path = await _folderHelper.GeneratePathAsync(currentFolderId);
-        var infos = _fileRepository
+        var files = _fileRepository
             .Where(x => x.UserId == userId && x.Path == path);
-        return infos;
+        return files;
     }
 }

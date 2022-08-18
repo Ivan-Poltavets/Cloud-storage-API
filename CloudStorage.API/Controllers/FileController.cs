@@ -22,7 +22,7 @@ namespace CloudStorage.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddFiles(List<IFormFile> files, Guid? currentFolderId)
         {
-            await _fileService.AddFiles(files, UserId, currentFolderId);
+            await _fileService.AddFilesAsync(files, UserId, currentFolderId);
             return CreatedAtAction(nameof(AddFiles), files);
         }
 
@@ -36,7 +36,7 @@ namespace CloudStorage.API.Controllers
         [HttpDelete]
         public async Task<IActionResult> RemoveFiles(List<Guid> ids)
         {
-            await _fileService.RemoveFiles(ids, UserId);
+            await _fileService.RemoveFilesAsync(ids, UserId);
             return NoContent();
         }
     }

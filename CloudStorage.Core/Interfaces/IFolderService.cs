@@ -5,9 +5,9 @@ namespace CloudStorage.Core.Interfaces;
 
 public interface IFolderService
 {
-    Task<FolderInfo> AddFolder(FolderDto folderDto, string userId, Guid? currentFolderId);
+    Task<FolderInfo> AddFolderAsync(FolderDto folderDto, string userId, Guid? currentFolderId);
 
-    Task<FolderInfo> RemoveFolder(Guid id);
+    Task<FolderInfo> RemoveFolderAsync(Guid id);
 
-    Task<List<FolderInfo>> GetFolders(string userId, Guid? currentFolderId);
+    Task<List<FolderInfo>> GetFoldersAsync(string userId, Guid? currentFolderId);
 }

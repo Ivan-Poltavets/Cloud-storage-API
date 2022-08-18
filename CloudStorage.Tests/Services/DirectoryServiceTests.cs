@@ -52,16 +52,16 @@ public class DirectoryServiceTests
             Type = nameof(FolderInfo)
         }));
 
-        _fileServiceMock.Setup(x => x.GetFiles(userId, null))
+        _fileServiceMock.Setup(x => x.GetFilesAsync(userId, null))
             .ReturnsAsync(fileServiceReturn);
-        _folderServiceMock.Setup(x => x.GetFolders(userId, null))
+        _folderServiceMock.Setup(x => x.GetFoldersAsync(userId, null))
             .ReturnsAsync(folderServiceReturn);
         _mapperMock.Setup(x => x.Map<List<FolderInfo>, List<ItemDto>>(folderServiceReturn))
             .Returns(expectedFolders);
         _mapperMock.Setup(x => x.Map<List<FileInfo>, List<ItemDto>>(fileServiceReturn))
             .Returns(expectedFiles);
         
-        var result = await _sut.GetAllInCurrent(userId, null);
+        var result = await _sut.GetAllInCurrentAsync(userId, null);
         
         Assert.Equal(typeof(List<ItemDto>), result.GetType());
         result.ForEach(x => Assert.True(x.Path == "~"));
@@ -93,16 +93,16 @@ public class DirectoryServiceTests
             Type = nameof(FolderInfo)
         }));
         
-        _fileServiceMock.Setup(x => x.GetFiles(userId, folder.Id))
+        _fileServiceMock.Setup(x => x.GetFilesAsync(userId, folder.Id))
             .ReturnsAsync(fileServiceReturn);
-        _folderServiceMock.Setup(x => x.GetFolders(userId, folder.Id))
+        _folderServiceMock.Setup(x => x.GetFoldersAsync(userId, folder.Id))
             .ReturnsAsync(folderServiceReturn);
         _mapperMock.Setup(x => x.Map<List<FolderInfo>, List<ItemDto>>(folderServiceReturn))
             .Returns(expectedFolders);
         _mapperMock.Setup(x => x.Map<List<FileInfo>, List<ItemDto>>(fileServiceReturn))
             .Returns(expectedFiles);
         
-        var result = await _sut.GetAllInCurrent(userId, folder.Id);
+        var result = await _sut.GetAllInCurrentAsync(userId, folder.Id);
         
         Assert.Equal(typeof(List<ItemDto>), result.GetType());
         Assert.Equal(3, result.Count);
