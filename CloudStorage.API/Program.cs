@@ -22,8 +22,8 @@ services.AddAuthentication(options =>
 })
     .AddGoogle(options =>
     {
-        options.ClientId = configuration["Authentication:Google:ClientId"]!;
-        options.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
+        options.ClientId = Environment.GetEnvironmentVariable("Google:ClienId");
+        options.ClientSecret = Environment.GetEnvironmentVariable("Google:ClientSecret");
     });
 
 services.AddCors();
