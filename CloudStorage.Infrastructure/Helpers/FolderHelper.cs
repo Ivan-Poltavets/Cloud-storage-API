@@ -6,12 +6,12 @@ namespace CloudStorage.Infrastructure.Helpers;
 
 public class FolderHelper : IFolderHelper
 {
-    private readonly IRepository<FolderInfo> _repository;
+    private readonly IMongoRepository<FolderInfo> _repository;
 
-    public FolderHelper(IRepository<FolderInfo> repository)
+    public FolderHelper(IMongoRepository<FolderInfo> repository)
         => _repository = repository;
 
-    public async Task<string> GeneratePathAsync(Guid? folderId)
+    public async Task<string> GeneratePathAsync(string? folderId)
     {
         string path = Constants.MainDirectory;
 

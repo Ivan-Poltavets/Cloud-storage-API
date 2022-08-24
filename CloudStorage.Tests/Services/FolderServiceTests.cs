@@ -13,12 +13,12 @@ public class FolderServiceTests
 {
     private readonly FolderService _sut;
     private readonly Mock<IFolderHelper> _folderHelper;
-    private readonly Mock<IRepository<FolderInfo>> _folderRepo;
+    private readonly Mock<IMongoRepository<FolderInfo>> _folderRepo;
 
     public FolderServiceTests()
     {
         _folderHelper = new Mock<IFolderHelper>();
-        _folderRepo = new Mock<IRepository<FolderInfo>>();
+        _folderRepo = new Mock<IMongoRepository<FolderInfo>>();
         _sut = new FolderService(_folderRepo.Object, _folderHelper.Object);
     }
     
@@ -27,14 +27,14 @@ public class FolderServiceTests
     public async Task AddFolder_WhenCurrenFolderNull(FolderDto dto)
     {
         var data = new DataSeed();
-        Guid? folderId = null;
+        string? folderId = null;
         _folderHelper.Setup(x => x.GeneratePathAsync(folderId))
             .ReturnsAsync(Constants.MainDirectory);
         
         var result = await _sut.AddFolderAsync(dto, data.UserId, folderId);
         
         Assert.Equal(dto.Name, result.Name);
-        _folderRepo.Verify(x => x.SaveChangesAsync(), Times.Once());
+        _folderRepo.Verify(x => x.AddAsync(result), Times.Once());
     }
 
     [Theory]
@@ -43,12 +43,11 @@ public class FolderServiceTests
     {
         _folderRepo.Setup(x => x.GetByIdAsync(folder.Id))
             .ReturnsAsync(folder);
-        _folderRepo.Setup(x => x.Where(f => f.Path.StartsWith(folder.Path)))
-            .Returns((List<FolderInfo>)null);
+        _folderRepo.Setup(x => x.Find(f => f.Path.StartsWith(folder.Path)))
+            .ReturnsAsync((List<FolderInfo>)null);
         
         await _sut.RemoveFolderAsync(folder.Id);
         
-        _folderRepo.Verify(x => x.RemoveAsync(folder), Times.Once());
-        _folderRepo.Verify(x => x.SaveChangesAsync(), Times.Once());
+        _folderRepo.Verify(x => x.RemoveAsync(folder.Id), Times.Once());
     }
 }

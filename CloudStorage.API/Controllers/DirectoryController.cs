@@ -29,6 +29,6 @@ public class DirectoryController : BaseController
     /// <returns>List of ItemDto</returns>
 
     [HttpGet("folders/{currentFolderId}")]
-    public async Task<ActionResult<List<ItemDto>>> GetItemsInFolder(Guid currentFolderId)
+    public async Task<ActionResult<List<ItemDto>>> GetItemsInFolder(string currentFolderId)
         => await _directoryService.GetAllInCurrentAsync(UserId, currentFolderId);
 }

@@ -2,5 +2,5 @@
 
 public interface IFolderHelper
 {
-    public Task<string> GeneratePathAsync(Guid? folderId);
+    public Task<string> GeneratePathAsync(string? folderId);
 }

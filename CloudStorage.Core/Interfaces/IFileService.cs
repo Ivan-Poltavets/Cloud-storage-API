@@ -5,9 +5,9 @@ namespace CloudStorage.Core.Interfaces;
 
 public interface IFileService
 {
-    Task<List<FileInfo>> AddFilesAsync(List<IFormFile> files, string userId, Guid? currentFolderId);
+    Task<List<FileInfo>> AddFilesAsync(List<IFormFile> files, string userId, string? currentFolderId);
 
-    Task<List<FileInfo>> RemoveFilesAsync(List<Guid> ids, string userId);
+    Task<List<FileInfo>> RemoveFilesAsync(List<string> ids, string userId);
 
-    Task<List<FileInfo>> GetFilesAsync(string userId, Guid? currentFolderId);
+    Task<List<FileInfo>> GetFilesAsync(string userId, string? currentFolderId);
 }

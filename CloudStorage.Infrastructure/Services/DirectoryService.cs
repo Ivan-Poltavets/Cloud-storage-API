@@ -22,7 +22,7 @@ public class DirectoryService : IDirectoryService
         _mapper = mapper;
     }
 
-    public async Task<List<ItemDto>> GetAllInCurrentAsync(string userId, Guid? id)
+    public async Task<List<ItemDto>> GetAllInCurrentAsync(string userId, string? id)
     {
         var folders = await _folderService.GetFoldersAsync(userId, id);
         var files = await _fileService.GetFilesAsync(userId, id);

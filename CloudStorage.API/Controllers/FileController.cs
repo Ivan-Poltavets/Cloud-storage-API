@@ -20,21 +20,20 @@ namespace CloudStorage.API.Controllers
         /// <returns>Status code 201</returns>
 
         [HttpPost]
-        public async Task<IActionResult> AddFiles(List<IFormFile> files, Guid? currentFolderId)
+        public async Task<IActionResult> AddFiles(List<IFormFile> files, string? currentFolderId)
         {
             await _fileService.AddFilesAsync(files, UserId, currentFolderId);
             return CreatedAtAction(nameof(AddFiles), files);
         }
 
         /// <summary>
-        /// Remove files from Blob Storage, info and storage info 
+        /// Remove all files by id
         /// </summary>
-        /// <param name="names">Names of files</param>
-        /// <param name="currentFolderId">Current directory id</param>
-        /// <returns>Status code 204</returns>
+        /// <param name="ids"></param>
+        /// <returns></returns>
 
         [HttpDelete]
-        public async Task<IActionResult> RemoveFiles(List<Guid> ids)
+        public async Task<IActionResult> RemoveFiles(List<string> ids)
         {
             await _fileService.RemoveFilesAsync(ids, UserId);
             return NoContent();

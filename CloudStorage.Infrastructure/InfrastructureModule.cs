@@ -7,41 +7,37 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FileInfo = CloudStorage.Core.Entities.FileInfo;
 
-namespace CloudStorage.Infrastructure
+namespace CloudStorage.Infrastructure;
+
+public static class InfrastructureModule
 {
-    public static class InfrastructureModule
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        services.AddAzureClients(config =>
         {
-            services.AddAzureClients(config =>
-            {
-                config.AddBlobServiceClient(configuration["Microsoft:BlobStorage:ConnectionString"]);
-            });
+            config.AddBlobServiceClient(configuration["Microsoft:BlobStorage:ConnectionString"]);
+        });
 
-            services.AddDbContext<AuthDbContext>(options =>
-            {
-                options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQL:Connection"));
-            });
+        services.AddDbContext<AuthDbContext>(options =>
+        {
+            options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQL:Connection"));
+        });
 
-            services.AddDbContext<CosmosDbContext>(options =>
-            {
-                options.UseCosmos(configuration["Microsoft:CosmosDB:ConnectionString"], configuration["Microsoft:CosmosDB:DatabaseName"]);
-            });
+        services.AddSingleton<IMongoRepository<FolderInfo>, MongoRepository<FolderInfo>>();
+        services.AddSingleton<IMongoRepository<FileInfo>, MongoRepository<FileInfo>>();
+        services.AddSingleton<IMongoRepository<AccountExtension>, MongoRepository<AccountExtension>>();
+        services.AddSingleton<IMongoRepository<Blob>, MongoRepository<Blob>>();
 
-            services.AddScoped<IRepository<FolderInfo>, Repository<FolderInfo>>();
-            services.AddScoped<IRepository<Core.Entities.FileInfo>, Repository<Core.Entities.FileInfo>>();
-            services.AddScoped<IRepository<AccountExtension>, Repository<AccountExtension>>();
+        services.AddTransient<IBlobStorageService, BlobStorageService>();
+        services.AddTransient<IFileService, FileService>();
+        services.AddTransient<IFolderService, FolderService>();
+        services.AddTransient<IDirectoryService, DirectoryService>();
+        services.AddTransient<IAccountService, AccountService>();
 
-            services.AddTransient<IBlobStorageService, BlobStorageService>();
-            services.AddTransient<IFileService, FileService>();
-            services.AddTransient<IFolderService, FolderService>();
-            services.AddTransient<IDirectoryService, DirectoryService>();
-            services.AddTransient<IAccountService, AccountService>();
+        services.AddTransient<IFolderHelper, FolderHelper>();
 
-            services.AddTransient<IFolderHelper, FolderHelper>();
-
-            return services;
-        }
+        return services;
     }
 }

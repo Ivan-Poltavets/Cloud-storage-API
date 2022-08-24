@@ -4,17 +4,18 @@ using CloudStorage.Tests.Base;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
 using CloudStorage.Infrastructure.Services;
+using Microsoft.Azure.Cosmos;
 
 namespace CloudStorage.Tests.Services
 {
     public class AccountServiceTests
     {
         private readonly AccountService _sut;
-        private readonly Mock<IRepository<AccountExtension>> _accountRepoMock;
+        private readonly Mock<IMongoRepository<AccountExtension>> _accountRepoMock;
 
         public AccountServiceTests()
         {
-            _accountRepoMock = new Mock<IRepository<AccountExtension>>();
+            _accountRepoMock = new Mock<IMongoRepository<AccountExtension>>();
             _sut = new AccountService(_accountRepoMock.Object);
         }
 
@@ -23,8 +24,6 @@ namespace CloudStorage.Tests.Services
         public async Task AddFileToStorage_Success(AccountExtension account)
         {
             _accountRepoMock.Setup(x => x.GetByIdAsync(account.UserId))
-                .ReturnsAsync(account);
-            _accountRepoMock.Setup(x => x.AddAsync(account))
                 .ReturnsAsync(account);
 
             var result = await _sut.AddFileToStorageAsync(account.UserId, account.SizeInUse);
@@ -43,7 +42,6 @@ namespace CloudStorage.Tests.Services
 
             Assert.NotNull(result);
             Assert.Equal(expected.UserId, result.UserId);
-            _accountRepoMock.Verify(x => x.SaveChangesAsync(), Times.Once());
         }
 
         [Theory]
@@ -53,7 +51,7 @@ namespace CloudStorage.Tests.Services
             var result = await _sut.CreateAccountInfoAsync(account.UserId, account);
 
             Assert.Equal(account.SizeInUse, result.SizeInUse);
-            _accountRepoMock.Verify(x => x.SaveChangesAsync(), Times.Never());
+            _accountRepoMock.Verify(x => x.AddAsync(new AccountExtension(account.UserId)), Times.Never());
         }
 
         [Theory]

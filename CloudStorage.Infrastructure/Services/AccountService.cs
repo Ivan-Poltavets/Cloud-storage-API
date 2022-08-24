@@ -5,9 +5,9 @@ namespace CloudStorage.Infrastructure.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly IRepository<AccountExtension> _repository;
+    private readonly IMongoRepository<AccountExtension> _repository;
 
-    public AccountService(IRepository<AccountExtension> repository)
+    public AccountService(IMongoRepository<AccountExtension> repository)
         => _repository = repository;
 
     public async Task<AccountExtension> AddFileToStorageAsync(string userId, long size)
@@ -17,7 +17,6 @@ public class AccountService : IAccountService
         account.AddFile(size);
 
         await _repository.UpdateAsync(account);
-        await _repository.SaveChangesAsync();
 
         return account;
     }
@@ -28,7 +27,6 @@ public class AccountService : IAccountService
         account.RemoveFile(size);
 
         await _repository.UpdateAsync(account);
-        await _repository.SaveChangesAsync();
         
         return account;
     }
@@ -39,7 +37,6 @@ public class AccountService : IAccountService
         {
             account = new AccountExtension(userId);
             await _repository.AddAsync(account);
-            await _repository.SaveChangesAsync();
         }
 
         return account;

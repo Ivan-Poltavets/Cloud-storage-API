@@ -42,19 +42,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-using(var scope = app.Services.CreateScope())
-{
-    try
-    {
-        var context = scope.ServiceProvider.GetRequiredService<CosmosDbContext>();
-        context.Database.EnsureCreated();
-    }
-    catch(Exception ex)
-    {
-
-    }
-}
-
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();

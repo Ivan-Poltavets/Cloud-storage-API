@@ -17,7 +17,7 @@ public class FileServiceTests
     private readonly FileService _sut;
     private readonly Mock<IBlobStorageService> _storageService;
     private readonly Mock<IAccountService> _accountService;
-    private readonly Mock<IRepository<FileInfo>> _fileRepository;
+    private readonly Mock<IMongoRepository<FileInfo>> _fileRepository;
     private readonly Mock<IFolderHelper> _folderHelper;
     
     public FileServiceTests()
@@ -27,7 +27,7 @@ public class FileServiceTests
 
         _storageService = new Mock<IBlobStorageService>();
         _accountService = new Mock<IAccountService>();
-        _fileRepository = new Mock<IRepository<FileInfo>>();
+        _fileRepository = new Mock<IMongoRepository<FileInfo>>();
         _folderHelper = new Mock<IFolderHelper>();
         _sut = new FileService(
             _fileRepository.Object,
@@ -42,19 +42,7 @@ public class FileServiceTests
     {
         var folder = new DataSeed().FolderInfosTest.SingleOrDefault(x => x.Name == "second");
         var files = Fixture.Create<List<IFormFile>>();
-        var expectedFiles = new List<FileInfo>();
-        for (int i = 0; i < files.Count; i++)
-        {
-            expectedFiles.Add(new FileInfo
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                Name = files[i].FileName,
-                BlobName = names[i],
-                Size = files[i].Length,
-                Path = folder.Path
-            });
-        }
+        
         _folderHelper.Setup(x => x.GeneratePathAsync(folder.Id))
             .ReturnsAsync(folder.Path);
         _storageService.Setup(x => x.UploadFiles(files))
@@ -64,7 +52,6 @@ public class FileServiceTests
         
         Assert.Equal(typeof(List<FileInfo>), result.GetType());
         result.ForEach(x => Assert.True(x.Path == folder.Path));
-        _fileRepository.Verify(x => x.SaveChangesAsync(), Times.Once());
     }
 
     [Fact]
@@ -73,14 +60,13 @@ public class FileServiceTests
         var data = new DataSeed();
         var files = data.FileInfosTest.Where(x => x.Path == "~").ToList();
         var userId = data.UserId;
-        var deleteIds = new List<Guid>();
+        var deleteIds = new List<string>();
         files.ForEach(x => deleteIds.Add(x.Id));
-        _fileRepository.Setup(x => x.Where(x => deleteIds.Contains(x.Id) && x.UserId == userId))
-            .Returns(files);
+        _fileRepository.Setup(x => x.Find(x => deleteIds.Contains(x.Id) && x.UserId == userId))
+            .ReturnsAsync(files);
         
         await _sut.RemoveFilesAsync(deleteIds, userId);
         
         _fileRepository.Verify(x => x.RemoveRangeAsync(files), Times.Once());
-        _fileRepository.Verify(x => x.SaveChangesAsync(), Times.Once());
     }
 }
