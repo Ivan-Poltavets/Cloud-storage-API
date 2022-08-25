@@ -1,4 +1,5 @@
-﻿using CloudStorage.Core.Interfaces;
+﻿using CloudStorage.Core.Entities;
+using CloudStorage.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using FileInfo = CloudStorage.Core.Entities.FileInfo;
 
@@ -10,17 +11,20 @@ public class FileService : IFileService
     private readonly IBlobStorageService _storageService;
     private readonly IAccountService _accountService;
     private readonly IMongoRepository<FileInfo> _fileRepository;
+    private readonly IMongoRepository<Blob> _blobRepository;
 
     public FileService(
         IMongoRepository<FileInfo> fileRepository,
         IAccountService accountService,
         IBlobStorageService storageService,
-        IFolderHelper folderHelper)
+        IFolderHelper folderHelper,
+        IMongoRepository<Blob> blobRepository)
     {
         _fileRepository = fileRepository;
         _accountService = accountService;
         _storageService = storageService;
         _folderHelper = folderHelper;
+        _blobRepository = blobRepository;
     }
     
     public async Task<List<FileInfo>> AddFilesAsync(List<IFormFile> files, string userId, string? currentFolderId)
@@ -32,7 +36,7 @@ public class FileService : IFileService
         files.ForEach(x => size += x.Length);
         await _accountService.AddFileToStorageAsync(userId, size);
 
-        var names = _storageService.UploadFiles(files);
+        var blobs = await _storageService.UploadFiles(files, userId);
         for(int i = 0; i < files.Count; i++)
         {
             infos.Add(new FileInfo
@@ -40,7 +44,7 @@ public class FileService : IFileService
                 Id = Guid.NewGuid().ToString(),
                 UserId = userId,
                 Name = files[i].FileName,
-                BlobName = names[i],
+                BlobName = blobs[i].Name,
                 Size = files[i].Length,
                 Path = path
             });
@@ -52,19 +56,15 @@ public class FileService : IFileService
 
     public async Task<List<FileInfo>> RemoveFilesAsync(List<string> ids, string userId)
     {
-        long size = 0;
+        var blobs = await _blobRepository
+            .FindAsync(x => ids.Contains(x.Id) && x.UserId == userId);
         var fileInfos = await _fileRepository
-            .Find(x => ids.Contains(x.Id) && x.UserId == userId);
-        var blobNames = new List<string>();
+            .FindAsync(x => blobs.Find(b => b.Name == x.BlobName) != null);
 
-        fileInfos.ForEach(x =>
-        {
-            blobNames.Add(x.BlobName);
-            size += x.Size;
-        });
+        long size = 0;
+        fileInfos.ForEach(x => size += x.Size);
 
-        _storageService.RemoveFiles(blobNames);
-        
+        await _storageService.RemoveFiles(blobs);
         await _accountService.RemoveFileFromStorageAsync(userId, size);
         await _fileRepository.RemoveRangeAsync(fileInfos);
         return fileInfos;
@@ -74,7 +74,7 @@ public class FileService : IFileService
     {
         string path = await _folderHelper.GeneratePathAsync(currentFolderId);
         var files = await _fileRepository
-            .Find(x => x.UserId == userId && x.Path == path);
+            .FindAsync(x => x.UserId == userId && x.Path == path);
         return files;
     }
 }

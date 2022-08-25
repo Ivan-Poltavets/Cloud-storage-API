@@ -43,7 +43,7 @@ public class FolderServiceTests
     {
         _folderRepo.Setup(x => x.GetByIdAsync(folder.Id))
             .ReturnsAsync(folder);
-        _folderRepo.Setup(x => x.Find(f => f.Path.StartsWith(folder.Path)))
+        _folderRepo.Setup(x => x.FindAsync(f => f.Path.StartsWith(folder.Path)))
             .ReturnsAsync((List<FolderInfo>)null);
         
         await _sut.RemoveFolderAsync(folder.Id);

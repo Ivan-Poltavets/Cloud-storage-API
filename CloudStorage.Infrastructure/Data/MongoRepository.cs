@@ -32,7 +32,7 @@ public class MongoRepository<TEntity> : IMongoRepository<TEntity>
     public async Task RemoveAsync(string id) =>
         await _collection.DeleteOneAsync(x => x.Id == id);
 
-    public async Task<List<TEntity>> Find(Expression<Func<TEntity, bool>> expression)
+    public async Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> expression)
         => await _collection.Find(expression).ToListAsync();
 
     public async Task AddRangeAsync(IEnumerable<TEntity> entities)

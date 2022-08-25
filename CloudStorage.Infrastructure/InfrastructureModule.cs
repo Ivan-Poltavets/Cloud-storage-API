@@ -4,7 +4,6 @@ using CloudStorage.Infrastructure.Data;
 using CloudStorage.Infrastructure.Helpers;
 using CloudStorage.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FileInfo = CloudStorage.Core.Entities.FileInfo;
@@ -15,11 +14,6 @@ public static class InfrastructureModule
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAzureClients(config =>
-        {
-            config.AddBlobServiceClient(configuration["Microsoft:BlobStorage:ConnectionString"]);
-        });
-
         services.AddDbContext<AuthDbContext>(options =>
         {
             options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQL:Connection"));

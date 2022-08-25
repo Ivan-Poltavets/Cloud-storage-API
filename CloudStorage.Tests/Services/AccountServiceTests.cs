@@ -4,7 +4,6 @@ using CloudStorage.Tests.Base;
 using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
 using CloudStorage.Infrastructure.Services;
-using Microsoft.Azure.Cosmos;
 
 namespace CloudStorage.Tests.Services
 {

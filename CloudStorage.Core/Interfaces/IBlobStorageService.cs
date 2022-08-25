@@ -1,15 +1,13 @@
-﻿using Azure;
-using Azure.Storage.Blobs.Models;
+﻿using CloudStorage.Core.Entities;
 using Microsoft.AspNetCore.Http;
 
-namespace CloudStorage.Core.Interfaces
+namespace CloudStorage.Core.Interfaces;
+
+public interface IBlobStorageService
 {
-    public interface IBlobStorageService
-    {
-        List<string> UploadFiles(List<IFormFile> files);
+    Task<List<Blob>> UploadFiles(List<IFormFile> files, string userId);
 
-        Pageable<BlobItem> GetFiles();
+    Task<List<Blob>> GetFiles(string userId);
 
-        void RemoveFiles(List<string> names);
-    }
+    Task RemoveFiles(List<Blob> blobs);
 }

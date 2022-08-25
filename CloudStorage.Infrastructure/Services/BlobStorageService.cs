@@ -1,54 +1,44 @@
-﻿using Azure;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
+﻿using CloudStorage.Core.Entities;
 using CloudStorage.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace CloudStorage.Infrastructure.Services;
 
 public class BlobStorageService : IBlobStorageService
 {
-    private readonly BlobServiceClient _blobServiceClient;
-    private readonly IConfiguration _configuration;
-    private readonly BlobContainerClient _containerClient;
+    private readonly IMongoRepository<Blob> _repository;
 
-    public BlobStorageService(BlobServiceClient blobServiceClient,
-        IConfiguration configuration)
+    public BlobStorageService(IMongoRepository<Blob> repository)
     {
-        _blobServiceClient = blobServiceClient;
-        _configuration = configuration;
-        _containerClient = 
-            _blobServiceClient.GetBlobContainerClient
-            (_configuration["Microsoft:BlobStorage:ContainerName"]);
+        _repository = repository;
     }
 
-    public List<string> UploadFiles(List<IFormFile> files)
+    public async Task<List<Blob>> UploadFiles(List<IFormFile> files, string userId)
     {
-        var names = new List<string>();
+        var blobs = new List<Blob>();
 
-        foreach (var file in files)
+        foreach(var file in files)
         {
-            var name = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            var blobClient = _containerClient.GetBlobClient(name);
-
-            using var stream = file.OpenReadStream();
-            blobClient.Upload(stream, true);
-            names.Add(name);
+            using(var stream = file.OpenReadStream())
+            {
+                byte[] data = new byte[file.Length];
+                stream.Read(data, 0, (int)file.Length);
+                blobs.Add(new Blob
+                {
+                    UserId = userId,
+                    Name = Guid.NewGuid().ToString(),
+                    Extension = Path.GetExtension(file.FileName),
+                    Data = data
+                });
+            }
         }
-
-        return names;
+        await _repository.AddRangeAsync(blobs);
+        return blobs;
     }
 
-    public Pageable<BlobItem> GetFiles()
-        => _containerClient.GetBlobs();
+    public async Task<List<Blob>> GetFiles(string userId)
+        => await _repository.FindAsync(x => x.UserId == userId);
 
-    public void RemoveFiles(List<string> names)
-    {
-        foreach(var name in names)
-        {
-            var blobClient = _containerClient.GetBlobClient(name);
-            blobClient.DeleteIfExists(DeleteSnapshotsOption.IncludeSnapshots);
-        }
-    }
+    public async Task RemoveFiles(List<Blob> blobs)
+        => await _repository.RemoveRangeAsync(blobs);
 }

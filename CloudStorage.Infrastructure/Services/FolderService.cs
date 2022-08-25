@@ -36,7 +36,7 @@ public class FolderService : IFolderService
         var folder = await _folderRepository
             .GetByIdAsync(id);
         var foldersInside = await _folderRepository
-            .Find(x => x.Path.StartsWith(folder.Path));
+            .FindAsync(x => x.Path.StartsWith(folder.Path));
 
         if(foldersInside is not null)
         {
@@ -51,7 +51,7 @@ public class FolderService : IFolderService
     {
         string path = await _folderHelper.GeneratePathAsync(currentFolderId);
         var folders = await _folderRepository
-            .Find(x => x.UserId == userId && x.Path == path);
+            .FindAsync(x => x.UserId == userId && x.Path == path);
         return folders;
     }
 }

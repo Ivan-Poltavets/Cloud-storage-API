@@ -1,9 +1,8 @@
 ﻿using CloudStorage.Core.Dtos;
 
-namespace CloudStorage.Core.Interfaces
+namespace CloudStorage.Core.Interfaces;
+
+public interface IDirectoryService
 {
-    public interface IDirectoryService
-    {
-        Task<List<ItemDto>> GetAllInCurrentAsync(string userId, string? id);
-    }
+    Task<List<ItemDto>> GetAllInCurrentAsync(string userId, string? id);
 }

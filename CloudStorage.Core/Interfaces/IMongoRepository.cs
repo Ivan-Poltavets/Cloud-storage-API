@@ -9,5 +9,5 @@ public interface IMongoRepository<TEntity> : IRepository<TEntity>
     Task AddRangeAsync(IEnumerable<TEntity> entities);
     Task RemoveRangeAsync(IEnumerable<TEntity> entities);
     Task UpdateRangeAsync(IEnumerable<TEntity> entities);
-    Task<List<TEntity>> Find(Expression<Func<TEntity, bool>> expression);
+    Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> expression);
 }
